@@ -531,6 +531,33 @@ elif page == "🏦 Brokers":
     
     st.markdown("---")
     
+    # GBM sync section
+    st.subheader("🔄 GBM Sync")
+    st.write("Click to sync GBM Main + GBM USA from JSON exports")
+    
+    if st.button("🔄 Sync GBM Now", type="primary"):
+        with st.spinner("Syncing GBM portfolios..."):
+            try:
+                import subprocess
+                result = subprocess.run(
+                    [sys.executable, "gbm_sync.py"],
+                    capture_output=True,
+                    text=True,
+                    timeout=120
+                )
+                
+                if result.returncode == 0:
+                    st.success("✅ GBM sync complete!")
+                    st.code(result.stdout)
+                    st.cache_data.clear()
+                    st.rerun()
+                else:
+                    st.error(f"❌ Sync failed:\n{result.stderr}")
+            except Exception as e:
+                st.error(f"❌ Error: {e}")
+    
+    st.markdown("---")
+    
     brokers_list = ['eToro', 'GBM USA', 'GBM Main', 'Binance', 'Schwab', 'IBKR', 'Bitso']
     
     for broker in brokers_list:
