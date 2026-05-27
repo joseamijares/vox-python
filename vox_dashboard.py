@@ -132,53 +132,36 @@ if page == "📊 Dashboard":
             strong_buy = len(df[df['grade'] >= 75])
             st.metric("Strong Buy", strong_buy)
         
-        # Grade distribution
+        # Grade distribution - Use st.bar_chart instead of Plotly
         st.subheader("📊 Grade Distribution")
         
         grade_buckets = {
-            'STRONG_BUY (75+)': len(df[df['grade'] >= 75]),
-            'BUY (60-74)': len(df[(df['grade'] >= 60) & (df['grade'] < 75)]),
-            'HOLD (50-59)': len(df[(df['grade'] >= 50) & (df['grade'] < 60)]),
-            'WEAK (30-49)': len(df[(df['grade'] >= 30) & (df['grade'] < 50)]),
-            'AVOID (<30)': len(df[df['grade'] < 30])
+            'STRONG_BUY': len(df[df['grade'] >= 75]),
+            'BUY': len(df[(df['grade'] >= 60) & (df['grade'] < 75)]),
+            'HOLD': len(df[(df['grade'] >= 50) & (df['grade'] < 60)]),
+            'WEAK': len(df[(df['grade'] >= 30) & (df['grade'] < 50)]),
+            'AVOID': len(df[df['grade'] < 30])
         }
         
-        fig = go.Figure(data=[go.Pie(
-            labels=list(grade_buckets.keys()),
-            values=list(grade_buckets.values()),
-            hole=.4,
-            marker_colors=['#22c55e', '#3b82f6', '#f59e0b', '#f97316', '#ef4444']
-        )])
-        fig.update_layout(
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            font_color='white',
-            showlegend=True
-        )
-        st.plotly_chart(fig, use_container_width=True)
+        grade_df = pd.DataFrame({
+            'Category': list(grade_buckets.keys()),
+            'Count': list(grade_buckets.values())
+        })
         
-        # Top holdings
+        st.bar_chart(grade_df.set_index('Category'), use_container_width=True)
+        
+        # Top holdings - Use st.table instead of Plotly
         st.subheader("🏆 Top 10 Holdings")
-        top10 = df.nlargest(10, 'live_value')[['ticker', 'live_value', 'grade', 'brokers']]
+        top10 = df.nlargest(10, 'live_value')[['ticker', 'live_value', 'grade']].copy()
+        top10['Value'] = top10['live_value'].apply(lambda x: f"${x:,.2f}")
+        top10['Grade'] = top10['grade'].apply(lambda x: f"{x:.0f}")
+        top10['Signal'] = top10['grade'].apply(grade_label)
         
-        fig = go.Figure(data=[
-            go.Bar(
-                x=top10['ticker'],
-                y=top10['live_value'],
-                marker_color=[grade_color(g) for g in top10['grade']],
-                text=[f"${v:,.0f}" for v in top10['live_value']],
-                textposition='auto'
-            )
-        ])
-        fig.update_layout(
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            font_color='white',
-            xaxis_title="Ticker",
-            yaxis_title="Value ($)",
-            showlegend=False
+        st.dataframe(
+            top10[['ticker', 'Value', 'Grade', 'Signal']].rename(columns={'ticker': 'Ticker'}),
+            use_container_width=True,
+            hide_index=True
         )
-        st.plotly_chart(fig, use_container_width=True)
         
         # Alerts
         st.subheader("🚨 Alerts")
