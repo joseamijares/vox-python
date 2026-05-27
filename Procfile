@@ -1,0 +1,1 @@
+web: PYTHONPATH=/Users/jos/.hermes/scripts:$PYTHONPATH streamlit run vox_dashboard.py --server.port $PORT --server.headless true
