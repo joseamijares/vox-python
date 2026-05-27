@@ -495,7 +495,33 @@ elif page == "🏦 Brokers":
                 if result.returncode == 0:
                     st.success("✅ eToro sync complete!")
                     st.code(result.stdout)
-                    # Clear cache to reload data
+                    st.cache_data.clear()
+                    st.rerun()
+                else:
+                    st.error(f"❌ Sync failed:\n{result.stderr}")
+            except Exception as e:
+                st.error(f"❌ Error: {e}")
+    
+    st.markdown("---")
+    
+    # Binance sync section
+    st.subheader("🔄 Binance Sync")
+    st.write("Click to fetch real-time data from Binance API")
+    
+    if st.button("🔄 Sync Binance Now", type="primary"):
+        with st.spinner("Fetching from Binance API..."):
+            try:
+                import subprocess
+                result = subprocess.run(
+                    [sys.executable, "binance_sync.py"],
+                    capture_output=True,
+                    text=True,
+                    timeout=120
+                )
+                
+                if result.returncode == 0:
+                    st.success("✅ Binance sync complete!")
+                    st.code(result.stdout)
                     st.cache_data.clear()
                     st.rerun()
                 else:
