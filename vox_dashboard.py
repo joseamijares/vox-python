@@ -477,6 +477,34 @@ elif page == "🎯 Plays":
 elif page == "🏦 Brokers":
     st.title("🏦 Broker Status")
     
+    # eToro sync section
+    st.subheader("🔄 eToro Sync")
+    st.write("Click to fetch real-time data from eToro API")
+    
+    if st.button("🔄 Sync eToro Now", type="primary"):
+        with st.spinner("Fetching from eToro API..."):
+            try:
+                import subprocess
+                result = subprocess.run(
+                    [sys.executable, "etoro_sync.py"],
+                    capture_output=True,
+                    text=True,
+                    timeout=120
+                )
+                
+                if result.returncode == 0:
+                    st.success("✅ eToro sync complete!")
+                    st.code(result.stdout)
+                    # Clear cache to reload data
+                    st.cache_data.clear()
+                    st.rerun()
+                else:
+                    st.error(f"❌ Sync failed:\n{result.stderr}")
+            except Exception as e:
+                st.error(f"❌ Error: {e}")
+    
+    st.markdown("---")
+    
     brokers_list = ['eToro', 'GBM USA', 'GBM Main', 'Binance', 'Schwab', 'IBKR', 'Bitso']
     
     for broker in brokers_list:
@@ -495,8 +523,9 @@ elif page == "🏦 Brokers":
                 st.write("$0.00")
         
         with col3:
-            if st.button("Sync", key=f"sync_{broker}"):
-                st.info(f"Syncing {broker}...")
+            if broker != 'eToro':
+                if st.button("Sync", key=f"sync_{broker}"):
+                    st.info(f"Syncing {broker}... (not implemented yet)")
 
 # ANALYSIS PAGE
 elif page == "📈 Analysis":
