@@ -558,6 +558,33 @@ elif page == "🏦 Brokers":
     
     st.markdown("---")
     
+    # Remaining brokers sync section
+    st.subheader("🔄 IBKR, Schwab, Bitso Sync")
+    st.write("Click to sync remaining brokers from JSON exports")
+    
+    if st.button("🔄 Sync Remaining Now", type="primary"):
+        with st.spinner("Syncing IBKR, Schwab, Bitso..."):
+            try:
+                import subprocess
+                result = subprocess.run(
+                    [sys.executable, "remaining_sync.py"],
+                    capture_output=True,
+                    text=True,
+                    timeout=120
+                )
+                
+                if result.returncode == 0:
+                    st.success("✅ Remaining brokers sync complete!")
+                    st.code(result.stdout)
+                    st.cache_data.clear()
+                    st.rerun()
+                else:
+                    st.error(f"❌ Sync failed:\n{result.stderr}")
+            except Exception as e:
+                st.error(f"❌ Error: {e}")
+    
+    st.markdown("---")
+    
     brokers_list = ['eToro', 'GBM USA', 'GBM Main', 'Binance', 'Schwab', 'IBKR', 'Bitso']
     
     for broker in brokers_list:
