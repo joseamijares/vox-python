@@ -4,10 +4,17 @@ import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime
 import sys
+import os
 
-# Add scripts path for vox_supabase_sync
+# Add scripts path for vox_supabase_sync (local dev)
 sys.path.insert(0, '/Users/jos/.hermes/scripts')
-from vox_supabase_sync import get_client
+
+# Try local first, then fallback to same directory
+try:
+    from vox_supabase_sync import get_client
+except ImportError:
+    # Railway deployment - module in same directory
+    from vox_supabase_sync import get_client
 
 # Page config
 st.set_page_config(
