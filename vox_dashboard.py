@@ -261,7 +261,7 @@ if not df.empty:
 st.sidebar.markdown("<h1 style='color: #3B82F6; font-size: 24px; font-weight: 800;'>VOX</h1>", unsafe_allow_html=True)
 st.sidebar.markdown("<p style='color: #8B949E; font-size: 12px; margin-bottom: 24px;'>v8.0 Python</p>", unsafe_allow_html=True)
 
-page = st.sidebar.radio("", [
+page = st.sidebar.radio("Navigation", [
     "📊 Command Center",
     "💼 Portfolio",
     "👁️ Watchlist",
@@ -355,7 +355,7 @@ if page == "📊 Command Center":
                     'Signal': st.column_config.TextColumn("Signal", width="medium"),
                     'Council': st.column_config.TextColumn("Council", width="small"),
                 },
-                use_container_width=True,
+                width="stretch",
                 hide_index=True
             )
         
@@ -375,7 +375,7 @@ if page == "📊 Command Center":
                 'Count': list(grade_buckets.values())
             })
             
-            st.bar_chart(grade_df.set_index('Category'), use_container_width=True, height=200)
+            st.bar_chart(grade_df.set_index('Category'), width="stretch", height=200)
             
             st.subheader("🏦 By Broker")
             if 'brokers' in df.columns:
@@ -441,7 +441,7 @@ elif page == "💼 Portfolio":
                 'council': st.column_config.TextColumn("Council"),
                 'brokers': st.column_config.ListColumn("Brokers"),
             },
-            use_container_width=True,
+            width="stretch",
             hide_index=True
         )
 
@@ -453,7 +453,7 @@ elif page == "👁️ Watchlist":
         wl_df = pd.DataFrame(watchlist)
         st.dataframe(
             wl_df[['ticker', 'grade', 'council', 'entry_price', 'target_price', 'stop_loss', 'status']],
-            use_container_width=True,
+            width="stretch",
             hide_index=True
         )
     else:
@@ -467,7 +467,7 @@ elif page == "🎯 Plays":
         plays_df = pd.DataFrame(plays)
         st.dataframe(
             plays_df[['ticker', 'action', 'shares', 'price', 'broker', 'reason']],
-            use_container_width=True,
+            width="stretch",
             hide_index=True
         )
     else:
@@ -634,4 +634,4 @@ elif page == "📈 Analysis":
         # Grade distribution detail
         st.subheader("📊 Grade Distribution")
         grade_counts = df['grade'].apply(grade_label).value_counts()
-        st.bar_chart(grade_counts, use_container_width=True)
+        st.bar_chart(grade_counts, width="stretch")
