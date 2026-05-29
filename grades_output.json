@@ -1,0 +1,77 @@
+{
+  "calculated_at": "2026-05-29 19:32:02.741272",
+  "grades": [
+    {
+      "ticker": "AAPL",
+      "name": "Apple Inc.",
+      "grade": 62,
+      "council": "HOLD",
+      "technical": 67,
+      "fundamental": 76,
+      "sector": "Technology"
+    },
+    {
+      "ticker": "MSFT",
+      "name": "Microsoft Corporation",
+      "grade": 65,
+      "council": "HOLD",
+      "technical": 72,
+      "fundamental": 78,
+      "sector": "Technology"
+    },
+    {
+      "ticker": "GOOGL",
+      "name": "Alphabet Inc.",
+      "grade": 55,
+      "council": "HOLD",
+      "technical": 40,
+      "fundamental": 78,
+      "sector": "Communication Services"
+    },
+    {
+      "ticker": "TSLA",
+      "name": "Tesla, Inc.",
+      "grade": 59,
+      "council": "HOLD",
+      "technical": 75,
+      "fundamental": 58,
+      "sector": "Consumer Cyclical"
+    },
+    {
+      "ticker": "NVDA",
+      "name": "NVIDIA Corporation",
+      "grade": 64,
+      "council": "HOLD",
+      "technical": 65,
+      "fundamental": 83,
+      "sector": "Technology"
+    },
+    {
+      "ticker": "AMD",
+      "name": "Advanced Micro Devices, Inc.",
+      "grade": 62,
+      "council": "HOLD",
+      "technical": 72,
+      "fundamental": 69,
+      "sector": "Technology"
+    },
+    {
+      "ticker": "META",
+      "name": "Meta Platforms, Inc.",
+      "grade": 66,
+      "council": "HOLD",
+      "technical": 69,
+      "fundamental": 86,
+      "sector": "Communication Services"
+    },
+    {
+      "ticker": "AMZN",
+      "name": "Amazon.com, Inc.",
+      "grade": 61,
+      "council": "HOLD",
+      "technical": 65,
+      "fundamental": 73,
+      "sector": "Consumer Cyclical"
+    }
+  ]
+}
