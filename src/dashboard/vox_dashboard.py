@@ -625,10 +625,10 @@ def render_mobile_menu(current_page):
         active_class = "active" if current_page == key else ""
         icon = PAGE_ICONS.get(key, "•")
         menu_items_html += f"""
-        <div class="mobile-menu-item {active_class}" onclick="window.location.reload()">
+        <a href="?page={key}" class="mobile-menu-item {active_class}">
             <span class="menu-icon">{icon}</span>
             <span>{label}</span>
-        </div>
+        </a>
         """
     
     st.markdown(f"""
@@ -665,7 +665,7 @@ def render_mobile_bottom_nav(current_page):
         icon = PAGE_ICONS.get(key, "•")
         label = PAGE_LABELS.get(key, key)
         nav_html += f"""
-        <a href="#{key}" class="mobile-nav-item {active_class}" onclick="document.getElementById('nav_btn_{key}').click(); return false;">
+        <a href="?page={key}" class="mobile-nav-item {active_class}">
             <span class="mobile-nav-icon">{icon}</span>
             <span>{label}</span>
         </a>
@@ -772,6 +772,17 @@ if 'page' in query_params:
         st.session_state.page = page_from_url
 
 page = st.session_state.page
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# MOBILE NAV BUTTONS (hidden, used by mobile nav to trigger page changes)
+# ═══════════════════════════════════════════════════════════════════════════════
+st.markdown("<div style='display: none;'>", unsafe_allow_html=True)
+for key in PAGE_LABELS:
+    if st.button(f"go_{key}", key=f"mobile_nav_{key}"):
+        st.session_state.page = key
+        st.query_params['page'] = key
+        st.rerun()
+st.markdown("</div>", unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # MOBILE UI RENDERING
