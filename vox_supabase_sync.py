@@ -30,11 +30,25 @@ ENV = load_env()
 SUPABASE_URL = ENV.get("NEXT_PUBLIC_SUPABASE_URL", "")
 SUPABASE_KEY = ENV.get("SUPABASE_SERVICE_ROLE_KEY", "")
 
-# Fallback to hardcoded (for now, will be removed after .env update)
+# Fallback to local .env if not found in hermes .env
+if not SUPABASE_URL or not SUPABASE_KEY:
+    local_env = Path(__file__).parent / ".env"
+    if local_env.exists():
+        with open(local_env) as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    if k == "SUPABASE_URL":
+                        SUPABASE_URL = v
+                    elif k == "SUPABASE_KEY":
+                        SUPABASE_KEY = v
+
+# Final fallback
 if not SUPABASE_URL:
     SUPABASE_URL = "https://msvcrlijclhuifdjjmyy.supabase.co"
 if not SUPABASE_KEY:
-    SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zdmNybGlqY2xodWlmZGpqbXl5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTc5OTk2NiwiZXhwIjoyMDk1Mzc1OTY2fQ.RVGnYGVr88ZXNddPaiBJrRGg9knoVNKVeq8QqT5o7G8"
+    SUPABASE_KEY = "eyJhbG...o7G8"
 
 _supabase = None
 
