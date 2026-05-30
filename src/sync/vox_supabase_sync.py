@@ -11,24 +11,39 @@ from datetime import datetime, timezone
 from pathlib import Path
 from supabase import create_client
 
-# Load credentials from .env
+# Load credentials from environment or .env
 SCRIPT_DIR = Path.home() / ".hermes" / "scripts"
 
 def load_env():
-    env_path = Path.home() / ".hermes" / ".env"
+    """Load credentials from environment first, then .env files."""
+    # Check environment variables first (Railway sets these)
+    url = os.environ.get("SUPABASE_URL", "")
+    key = os.environ.get("SUPABASE_KEY", "")
+    
+    if url and key:
+        return {"SUPABASE_URL": url, "SUPABASE_KEY": key}
+    
+    # Fallback to .env files
+    env_paths = [
+        Path.home() / ".hermes" / ".env",
+        Path(__file__).parent.parent.parent / ".env",  # repo root
+    ]
+    
     keys = {}
-    if env_path.exists():
-        with open(env_path) as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#") and "=" in line:
-                    k, v = line.split("=", 1)
-                    keys[k] = v
+    for env_path in env_paths:
+        if env_path.exists():
+            with open(env_path) as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        k, v = line.split("=", 1)
+                        keys[k] = v
+    
     return keys
 
 ENV = load_env()
-SUPABASE_URL = ENV.get("NEXT_PUBLIC_SUPABASE_URL", "")
-SUPABASE_KEY = ENV.get("SUPABASE_SERVICE_ROLE_KEY", "")
+SUPABASE_URL = ENV.get("SUPABASE_URL", ENV.get("NEXT_PUBLIC_SUPABASE_URL", ""))
+SUPABASE_KEY = ENV.get("SUPABASE_KEY", ENV.get("SUPABASE_SERVICE_ROLE_KEY", ""))
 
 # Fallback to local .env if not found in hermes .env
 if not SUPABASE_URL or not SUPABASE_KEY:
