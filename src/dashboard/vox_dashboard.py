@@ -51,6 +51,26 @@ GRADE_COLORS = {
     'STRONG_SELL': '#DC2626',
 }
 
+PAGE_ICONS = {
+    'command': '📊',
+    'portfolio': '💼',
+    'watchlist': '👁️',
+    'plays': '🎯',
+    'alerts': '🔔',
+    'brokers': '🏦',
+    'analysis': '📈',
+}
+
+PAGE_LABELS = {
+    'command': 'Command Center',
+    'portfolio': 'Portfolio',
+    'watchlist': 'Watchlist',
+    'plays': 'Plays',
+    'alerts': 'Alerts',
+    'brokers': 'Brokers',
+    'analysis': 'Analysis',
+}
+
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -310,8 +330,352 @@ st.markdown(f"""
     .stSlider > div > div > div {{
         background-color: {COLORS['accent']} !important;
     }}
+    
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* MOBILE RESPONSIVE STYLES                                          */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    
+    /* ── Mobile Header ── */
+    .mobile-header {{
+        display: none;
+    }}
+    
+    /* ── Bottom Navigation ── */
+    .mobile-nav {{
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: {COLORS['bg_card']};
+        border-top: 1px solid {COLORS['border']};
+        padding: 8px 0 24px 0;
+        z-index: 9999;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+    }}
+    .mobile-nav-item {{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        padding: 4px 0;
+        color: {COLORS['text_muted']};
+        font-size: 10px;
+        font-weight: 500;
+        text-decoration: none;
+        flex: 1;
+        transition: all 0.15s ease;
+    }}
+    .mobile-nav-item .mobile-nav-icon {{
+        font-size: 22px;
+        line-height: 1;
+    }}
+    .mobile-nav-item.active {{
+        color: {COLORS['accent']};
+    }}
+    .mobile-nav-item:active {{
+        transform: scale(0.95);
+    }}
+    
+    /* ── Mobile Menu Overlay ── */
+    .mobile-menu-overlay {{
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 9998;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }}
+    .mobile-menu-overlay.open {{
+        opacity: 1;
+    }}
+    
+    .mobile-menu-drawer {{
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        max-width: 80vw;
+        background-color: {COLORS['bg_card']};
+        border-right: 1px solid {COLORS['border']};
+        z-index: 9999;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow-y: auto;
+    }}
+    .mobile-menu-drawer.open {{
+        transform: translateX(0);
+    }}
+    
+    .mobile-menu-header {{
+        padding: 20px;
+        border-bottom: 1px solid {COLORS['border']};
+    }}
+    
+    .mobile-menu-item {{
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px 20px;
+        color: {COLORS['text_muted']};
+        font-size: 16px;
+        font-weight: 500;
+        text-decoration: none;
+        border-bottom: 1px solid {COLORS['border']};
+        transition: all 0.15s ease;
+    }}
+    .mobile-menu-item:hover {{
+        background-color: {COLORS['bg_hover']};
+        color: {COLORS['text']};
+    }}
+    .mobile-menu-item.active {{
+        background-color: rgba(59, 130, 246, 0.1);
+        color: {COLORS['accent']};
+    }}
+    .mobile-menu-item .menu-icon {{
+        font-size: 22px;
+        width: 28px;
+        text-align: center;
+    }}
+    
+    .mobile-menu-close {{
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: {COLORS['bg_hover']};
+        border: 1px solid {COLORS['border']};
+        color: {COLORS['text']};
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }}
+    
+    /* ── Mobile Content Padding ── */
+    .mobile-content {{
+        padding-bottom: 80px;
+    }}
+    
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* MOBILE BREAKPOINT (max-width: 768px)                              */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    @media screen and (max-width: 768px) {{
+        /* Hide desktop sidebar */
+        .stSidebar {{
+            display: none !important;
+        }}
+        
+        /* Show mobile header */
+        .mobile-header {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background-color: {COLORS['bg_card']};
+            border-bottom: 1px solid {COLORS['border']};
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }}
+        
+        /* Show mobile nav */
+        .mobile-nav {{
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }}
+        
+        /* Show mobile menu */
+        .mobile-menu-overlay,
+        .mobile-menu-drawer {{
+            display: block;
+        }}
+        
+        /* Adjust main content */
+        .main .block-container {{
+            padding-left: 16px !important;
+            padding-right: 16px !important;
+            padding-top: 16px !important;
+        }}
+        
+        /* Smaller metric cards */
+        .metric-value {{
+            font-size: 22px !important;
+        }}
+        
+        /* Full-width columns */
+        [data-testid="column"] {{
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: auto !important;
+        }}
+        
+        /* Touch-friendly buttons */
+        .stButton > button {{
+            min-height: 44px;
+            font-size: 14px;
+        }}
+        
+        /* Compact tables */
+        .stDataFrame tbody tr td {{
+            font-size: 12px !important;
+            padding: 8px 12px !important;
+        }}
+        
+        /* Compact alerts */
+        .alert-card {{
+            padding: 12px;
+        }}
+    }}
+    
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /* TABLET BREAKPOINT (max-width: 1024px)                             */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    @media screen and (max-width: 1024px) and (min-width: 769px) {{
+        .stSidebar {{
+            min-width: 220px !important;
+            max-width: 220px !important;
+        }}
+        
+        .metric-value {{
+            font-size: 24px !important;
+        }}
+    }}
+    
+    /* ── Safe area for notched phones ── */
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {{
+        .mobile-nav {{
+            padding-bottom: max(24px, env(safe-area-inset-bottom));
+        }}
+    }}
 </style>
 """, unsafe_allow_html=True)
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# MOBILE HEADER (visible on mobile only via CSS)
+# ═══════════════════════════════════════════════════════════════════════════════
+def render_mobile_header(current_page):
+    """Render the mobile hamburger menu header"""
+    st.markdown(f"""
+    <div class="mobile-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button onclick="toggleMobileMenu()" style="background: none; border: none; color: {COLORS['text']}; font-size: 24px; cursor: pointer; padding: 4px;">
+                ☰
+            </button>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 28px; height: 28px; background: linear-gradient(135deg, {COLORS['accent']}, {COLORS['purple']}); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px;">🎯</div>
+                <span style="color: {COLORS['text']}; font-size: 16px; font-weight: 700;">VOX</span>
+            </div>
+        </div>
+        <div style="color: {COLORS['text_muted']}; font-size: 13px; font-weight: 500;">
+            {PAGE_LABELS.get(current_page, 'Dashboard')}
+        </div>
+    </div>
+    
+    <script>
+        function toggleMobileMenu() {{
+            const overlay = document.getElementById('mobile-menu-overlay');
+            const drawer = document.getElementById('mobile-menu-drawer');
+            overlay.classList.toggle('open');
+            drawer.classList.toggle('open');
+            document.body.style.overflow = drawer.classList.contains('open') ? 'hidden' : '';
+        }}
+        
+        function closeMobileMenu() {{
+            const overlay = document.getElementById('mobile-menu-overlay');
+            const drawer = document.getElementById('mobile-menu-drawer');
+            overlay.classList.remove('open');
+            drawer.classList.remove('open');
+            document.body.style.overflow = '';
+        }}
+        
+        // Close menu when clicking overlay
+        document.addEventListener('click', function(e) {{
+            if (e.target.id === 'mobile-menu-overlay') {{
+                closeMobileMenu();
+            }}
+        }});
+        
+        // Handle page navigation from mobile menu
+        function navigateToPage(page) {{
+            closeMobileMenu();
+            // The actual navigation is handled by Streamlit buttons
+        }}
+    </script>
+    """, unsafe_allow_html=True)
+
+def render_mobile_menu(current_page):
+    """Render the slide-out mobile menu drawer"""
+    menu_items_html = ""
+    for key, label in PAGE_LABELS.items():
+        active_class = "active" if current_page == key else ""
+        icon = PAGE_ICONS.get(key, "•")
+        menu_items_html += f"""
+        <div class="mobile-menu-item {active_class}" onclick="window.location.reload()">
+            <span class="menu-icon">{icon}</span>
+            <span>{label}</span>
+        </div>
+        """
+    
+    st.markdown(f"""
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+    <div id="mobile-menu-drawer" class="mobile-menu-drawer">
+        <div class="mobile-menu-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, {COLORS['accent']}, {COLORS['purple']}); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px;">🎯</div>
+                <div>
+                    <div style="color: {COLORS['text']}; font-size: 18px; font-weight: 700;">VOX</div>
+                    <div style="color: {COLORS['text_dim']}; font-size: 11px;">v12.0 Python</div>
+                </div>
+            </div>
+            <button class="mobile-menu-close" onclick="closeMobileMenu()">✕</button>
+        </div>
+        <div style="padding-top: 8px;">
+            {menu_items_html}
+        </div>
+        <div style="padding: 20px; border-top: 1px solid {COLORS['border']}; margin-top: auto;">
+            <div style="color: {COLORS['text_dim']}; font-size: 11px;">© 2026 VOX Systems</div>
+            <div style="color: {COLORS['text_dim']}; font-size: 11px; margin-top: 4px;">Last sync: {datetime.now().strftime('%H:%M')}</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+def render_mobile_bottom_nav(current_page):
+    """Render the bottom tab bar for mobile"""
+    # Show max 5 items on bottom nav
+    bottom_items = ['command', 'portfolio', 'watchlist', 'plays', 'alerts']
+    
+    nav_html = ""
+    for key in bottom_items:
+        active_class = "active" if current_page == key else ""
+        icon = PAGE_ICONS.get(key, "•")
+        label = PAGE_LABELS.get(key, key)
+        nav_html += f"""
+        <a href="#{key}" class="mobile-nav-item {active_class}" onclick="document.getElementById('nav_btn_{key}').click(); return false;">
+            <span class="mobile-nav-icon">{icon}</span>
+            <span>{label}</span>
+        </a>
+        """
+    
+    st.markdown(f"""
+    <div class="mobile-nav">
+        {nav_html}
+    </div>
+    """, unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # INITIALIZE SUPABASE
@@ -395,7 +759,29 @@ def format_currency(value):
     return f"${value:.2f}"
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# SIDEBAR NAVIGATION
+# SESSION STATE & NAVIGATION
+# ═══════════════════════════════════════════════════════════════════════════════
+if 'page' not in st.session_state:
+    st.session_state.page = 'command'
+
+# Check for URL hash navigation
+query_params = st.query_params
+if 'page' in query_params:
+    page_from_url = query_params['page']
+    if page_from_url in PAGE_LABELS:
+        st.session_state.page = page_from_url
+
+page = st.session_state.page
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# MOBILE UI RENDERING
+# ═══════════════════════════════════════════════════════════════════════════════
+render_mobile_header(page)
+render_mobile_menu(page)
+render_mobile_bottom_nav(page)
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# DESKTOP SIDEBAR NAVIGATION
 # ═══════════════════════════════════════════════════════════════════════════════
 with st.sidebar:
     # Logo
@@ -413,26 +799,13 @@ with st.sidebar:
     
     st.markdown(f"<hr style='border-color: {COLORS['border']}; margin: 0 0 12px 0;'>", unsafe_allow_html=True)
     
-    # Navigation
-    nav_items = [
-        ("📊", "Command Center", "command"),
-        ("💼", "Portfolio", "portfolio"),
-        ("👁️", "Watchlist", "watchlist"),
-        ("🎯", "Plays", "plays"),
-        ("🔔", "Alerts", "alerts"),
-        ("🏦", "Brokers", "brokers"),
-        ("📈", "Analysis", "analysis"),
-    ]
-    
-    # Use session state for navigation
-    if 'page' not in st.session_state:
-        st.session_state.page = 'command'
-    
-    for icon, label, key in nav_items:
-        active = "active" if st.session_state.page == key else ""
-        if st.sidebar.button(f"{icon}  {label}", key=f"nav_{key}", use_container_width=True,
-                           type="secondary" if st.session_state.page != key else "primary"):
+    # Navigation buttons
+    for key, label in PAGE_LABELS.items():
+        icon = PAGE_ICONS.get(key, "•")
+        btn_type = "primary" if page == key else "secondary"
+        if st.sidebar.button(f"{icon}  {label}", key=f"nav_btn_{key}", use_container_width=True, type=btn_type):
             st.session_state.page = key
+            st.query_params['page'] = key
             st.rerun()
     
     st.markdown(f"<hr style='border-color: {COLORS['border']}; margin: 16px 0;'>", unsafe_allow_html=True)
@@ -456,8 +829,6 @@ with st.sidebar:
         <div style='color: {COLORS["text_dim"]}; font-size: 10px;'>Last sync: {datetime.now().strftime('%H:%M')}</div>
     </div>
     """, unsafe_allow_html=True)
-
-page = st.session_state.page
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # COMMAND CENTER PAGE
@@ -512,9 +883,9 @@ if page == "command":
                         <div class='alert-card alert-urgent'>
                             <div style='display: flex; justify-content: space-between; align-items: center;'>
                                 <div>
-                                    <span style='color: {COLORS["red"]}; font-size: 11px; font-weight: 600; text-transform: uppercase;'>URGENT</span>
-                                    <div style='color: {COLORS["text"]}; font-size: 14px; font-weight: 600; margin-top: 2px;'>{row.get('ticker', '')}</div>
-                                    <div style='color: {COLORS["text_muted"]}; font-size: 12px; margin-top: 2px;'>{row.get('message', '')[:80]}...</div>
+                                    <span style='color: {COLORS['red']}; font-size: 11px; font-weight: 600; text-transform: uppercase;'>{row.get('priority', 'URGENT')}</span>
+                                    <div style='color: {COLORS['text']}; font-size: 14px; font-weight: 600; margin-top: 2px;'>{row.get('ticker', '')}</div>
+                                    <div style='color: {COLORS['text_muted']}; font-size: 12px; margin-top: 2px;'>{row.get('message', '')[:80]}...</div>
                                 </div>
                             </div>
                         </div>
@@ -526,9 +897,9 @@ if page == "command":
                         <div class='alert-card alert-high'>
                             <div style='display: flex; justify-content: space-between; align-items: center;'>
                                 <div>
-                                    <span style='color: {COLORS["orange"]}; font-size: 11px; font-weight: 600; text-transform: uppercase;'>HIGH</span>
-                                    <div style='color: {COLORS["text"]}; font-size: 14px; font-weight: 600; margin-top: 2px;'>{row.get('ticker', '')}</div>
-                                    <div style='color: {COLORS["text_muted"]}; font-size: 12px; margin-top: 2px;'>{row.get('message', '')[:80]}...</div>
+                                    <span style='color: {COLORS['orange']}; font-size: 11px; font-weight: 600; text-transform: uppercase;'>{row.get('priority', 'HIGH')}</span>
+                                    <div style='color: {COLORS['text']}; font-size: 14px; font-weight: 600; margin-top: 2px;'>{row.get('ticker', '')}</div>
+                                    <div style='color: {COLORS['text_muted']}; font-size: 12px; margin-top: 2px;'>{row.get('message', '')[:80]}...</div>
                                 </div>
                             </div>
                         </div>
@@ -555,8 +926,7 @@ if page == "command":
                 column_config={
                     'Ticker': st.column_config.TextColumn("Ticker", width="small"),
                     'Value': st.column_config.TextColumn("Value", width="medium"),
-                    'Grade': st.column_config.ProgressColumn("Grade", min_value=0, max_value=100, width="medium",
-                        format="%d"),
+                    'Grade': st.column_config.ProgressColumn("Grade", min_value=0, max_value=100, width="medium", format="%d"),
                     'Signal': st.column_config.TextColumn("Signal", width="small"),
                 },
                 hide_index=True,
@@ -583,7 +953,7 @@ if page == "command":
                 <div style='margin-bottom: 10px;'>
                     <div style='display: flex; justify-content: space-between; margin-bottom: 4px;'>
                         <span style='color: {color}; font-size: 12px; font-weight: 600;'>{label}</span>
-                        <span style='color: {COLORS["text_muted"]}; font-size: 12px;'>{count} ({pct:.0f}%)</span>
+                        <span style='color: {COLORS['text_muted']}; font-size: 12px;'>{count} ({pct:.0f}%)</span>
                     </div>
                     <div class='progress-bar'>
                         <div class='progress-fill' style='width: {pct}%; background-color: {color};'></div>
@@ -854,10 +1224,10 @@ elif page == "alerts":
                     <div>
                         <div style='display: flex; align-items: center; gap: 8px; margin-bottom: 4px;'>
                             <span style='color: {color}; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;'>{priority}</span>
-                            <span style='color: {COLORS["text"]}; font-size: 14px; font-weight: 700;'>{row.get('ticker', '')}</span>
-                            <span style='color: {COLORS["text_dim"]}; font-size: 11px;'>{row.get('alert_type', '')}</span>
+                            <span style='color: {COLORS['text']}; font-size: 14px; font-weight: 700;'>{row.get('ticker', '')}</span>
+                            <span style='color: {COLORS['text_dim']}; font-size: 11px;'>{row.get('alert_type', '')}</span>
                         </div>
-                        <div style='color: {COLORS["text_muted"]}; font-size: 13px; line-height: 1.5;'>{row.get('message', '')}</div>
+                        <div style='color: {COLORS['text_muted']}; font-size: 13px; line-height: 1.5;'>{row.get('message', '')}</div>
                     </div>
                 </div>
             </div>
