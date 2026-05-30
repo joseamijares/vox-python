@@ -340,47 +340,85 @@ st.markdown(f"""
         display: none;
     }}
     
+    /* ── Mobile Radio Nav Styling ── */
+    .stRadio > div {{
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 0;
+        background-color: {COLORS['bg_card']};
+        border: 1px solid {COLORS['border']};
+        border-radius: 10px;
+        padding: 4px;
+        overflow-x: auto;
+    }}
+    .stRadio > div > label {{
+        flex: 1;
+        min-width: 0;
+        text-align: center;
+        padding: 8px 4px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        color: {COLORS['text_muted']};
+        cursor: pointer;
+        transition: all 0.15s ease;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }}
+    .stRadio > div > label:hover {{
+        background-color: {COLORS['bg_hover']};
+        color: {COLORS['text']};
+    }}
+    .stRadio > div > label[data-baseweb="radio"] > div:first-child {{
+        display: none !important;
+    }}
+    .stRadio > div > label[data-baseweb="radio"] > div:last-child {{
+        margin-left: 0 !important;
+    }}
+    
     /* ═══════════════════════════════════════════════════════════════════ */
     /* MOBILE BREAKPOINT (max-width: 768px)                              */
     /* ═══════════════════════════════════════════════════════════════════ */
     @media screen and (max-width: 768px) {{
-        /* Hide desktop sidebar */
-        .stSidebar {{
+        /* Hide desktop sidebar completely */
+        .stSidebar,
+        .stSidebarNav,
+        [data-testid="stSidebar"] {{
+            display: none !important;
+            width: 0 !important;
+            min-width: 0 !important;
+            max-width: 0 !important;
+        }}
+        
+        /* Hide the sidebar collapse button */
+        button[kind="header"] {{
             display: none !important;
         }}
         
-        /* Show mobile header */
-        .mobile-header {{
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 16px;
-            background-color: {COLORS['bg_card']};
-            border-bottom: 1px solid {COLORS['border']};
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }}
-        
-        /* Adjust main content */
+        /* Expand main content to full width */
         .main .block-container {{
-            padding-left: 16px !important;
-            padding-right: 16px !important;
-            padding-top: 16px !important;
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+            padding-top: 12px !important;
+            max-width: 100% !important;
         }}
         
-        /* Smaller metric cards */
-        .metric-value {{
-            font-size: 22px !important;
+        /* Stack all columns vertically */
+        [data-testid="stHorizontalBlock"] {{
+            flex-direction: column !important;
+            gap: 12px !important;
         }}
-        
-        /* Full-width columns */
         [data-testid="column"] {{
             width: 100% !important;
             flex: 1 1 100% !important;
             min-width: auto !important;
+            max-width: 100% !important;
+        }}
+        
+        /* Smaller metric cards */
+        .metric-value {{
+            font-size: 20px !important;
         }}
         
         /* Touch-friendly buttons */
@@ -391,13 +429,32 @@ st.markdown(f"""
         
         /* Compact tables */
         .stDataFrame tbody tr td {{
-            font-size: 12px !important;
-            padding: 8px 12px !important;
+            font-size: 11px !important;
+            padding: 6px 8px !important;
+        }}
+        .stDataFrame thead tr th {{
+            font-size: 10px !important;
+            padding: 6px 8px !important;
         }}
         
         /* Compact alerts */
         .alert-card {{
-            padding: 12px;
+            padding: 10px;
+        }}
+        
+        /* Mobile radio nav - full width sticky */
+        .stRadio > div {{
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: {COLORS['bg_card']};
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            margin: 0 -12px;
+            border-radius: 0;
+            border-left: none;
+            border-right: none;
+            border-top: none;
         }}
     }}
     
@@ -576,17 +633,6 @@ if 'page' in query_params:
         st.session_state.page = page_from_url
 
 page = st.session_state.page
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# MOBILE NAV BUTTONS (hidden, used by mobile nav to trigger page changes)
-# ═══════════════════════════════════════════════════════════════════════════════
-st.markdown("<div style='display: none;'>", unsafe_allow_html=True)
-for key in PAGE_LABELS:
-    if st.button(f"go_{key}", key=f"mobile_nav_{key}"):
-        st.session_state.page = key
-        st.query_params['page'] = key
-        st.rerun()
-st.markdown("</div>", unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # MOBILE UI RENDERING — Native Streamlit (reliable on all devices)
