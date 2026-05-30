@@ -9,213 +9,318 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from sync.vox_supabase_sync import get_client
 
-# Page config
+# ═══════════════════════════════════════════════════════════════════════════════
+# PAGE CONFIG
+# ═══════════════════════════════════════════════════════════════════════════════
 st.set_page_config(
-    page_title="VOX Dashboard v8",
+    page_title="VOX Dashboard v12",
     page_icon="🎯",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS to match Vercel design
-st.markdown("""
+# ═══════════════════════════════════════════════════════════════════════════════
+# DESIGN SYSTEM — Dark Mode (Vercel/Railway inspired)
+# ═══════════════════════════════════════════════════════════════════════════════
+COLORS = {
+    'bg': '#0B0E14',
+    'bg_card': '#111318',
+    'bg_hover': '#161B22',
+    'border': '#1E2330',
+    'border_hover': '#2A3042',
+    'text': '#E2E8F0',
+    'text_muted': '#64748B',
+    'text_dim': '#475569',
+    'accent': '#3B82F6',
+    'accent_hover': '#2563EB',
+    'green': '#22C55E',
+    'green_dim': '#16A34A',
+    'red': '#EF4444',
+    'red_dim': '#DC2626',
+    'orange': '#F59E0B',
+    'yellow': '#EAB308',
+    'purple': '#A855F7',
+    'cyan': '#06B6D4',
+}
+
+GRADE_COLORS = {
+    'STRONG_BUY': '#22C55E',
+    'BUY': '#3B82F6',
+    'HOLD': '#F59E0B',
+    'SELL': '#EF4444',
+    'STRONG_SELL': '#DC2626',
+}
+
+st.markdown(f"""
 <style>
-    /* Main background */
-    .stApp {
-        background-color: #0B0E14;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     
-    /* Sidebar */
-    .stSidebar {
-        background-color: #141721 !important;
-        border-right: 1px solid #30363D;
-    }
+    * {{ font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important; }}
     
-    .stSidebar .stMarkdown {
-        color: #8B949E;
-    }
+    .stApp {{
+        background-color: {COLORS['bg']};
+    }}
     
-    /* Headers */
-    h1 {
-        color: #FFFFFF !important;
-        font-size: 28px !important;
-        font-weight: 700 !important;
-        margin-bottom: 4px !important;
-    }
+    /* ── Sidebar ── */
+    .stSidebar {{
+        background-color: {COLORS['bg_card']} !important;
+        border-right: 1px solid {COLORS['border']};
+    }}
+    .stSidebar [data-testid="stVerticalBlock"] {{
+        padding-top: 0 !important;
+    }}
     
-    h2 {
-        color: #FFFFFF !important;
-        font-size: 20px !important;
-        font-weight: 600 !important;
-    }
-    
-    h3 {
-        color: #FFFFFF !important;
-        font-size: 16px !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Caption/date */
-    .stCaption {
-        color: #8B949E !important;
-        font-size: 14px !important;
-    }
-    
-    /* Metric cards */
-    .stMetric {
-        background-color: #161B22;
-        border-radius: 12px;
-        padding: 20px;
-        border: 1px solid #30363D;
-    }
-    
-    .stMetric label {
-        color: #8B949E !important;
-        font-size: 13px !important;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .stMetric .css-1xarl3l {
-        color: #FFFFFF !important;
+    /* ── Typography ── */
+    h1 {{
+        color: {COLORS['text']} !important;
         font-size: 24px !important;
         font-weight: 700 !important;
-    }
+        letter-spacing: -0.02em !important;
+        margin-bottom: 4px !important;
+    }}
+    h2 {{
+        color: {COLORS['text']} !important;
+        font-size: 18px !important;
+        font-weight: 600 !important;
+        letter-spacing: -0.01em !important;
+        margin-top: 24px !important;
+        margin-bottom: 12px !important;
+    }}
+    h3 {{
+        color: {COLORS['text']} !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }}
+    p, .stMarkdown {{
+        color: {COLORS['text_muted']};
+    }}
     
-    /* Dataframes */
-    .stDataFrame {
-        background-color: #161B22;
+    /* ── Cards ── */
+    .vox-card {{
+        background-color: {COLORS['bg_card']};
+        border: 1px solid {COLORS['border']};
         border-radius: 12px;
-        border: 1px solid #30363D;
-    }
+        padding: 20px;
+        transition: all 0.2s ease;
+    }}
+    .vox-card:hover {{
+        border-color: {COLORS['border_hover']};
+        transform: translateY(-1px);
+    }}
     
-    /* Buttons */
-    .stButton > button {
-        background-color: #161B22;
-        color: #FFFFFF;
-        border: 1px solid #30363D;
+    /* ── Metric Cards ── */
+    .metric-card {{
+        background: linear-gradient(135deg, {COLORS['bg_card']} 0%, {COLORS['bg_hover']} 100%);
+        border: 1px solid {COLORS['border']};
+        border-radius: 12px;
+        padding: 20px;
+    }}
+    .metric-label {{
+        color: {COLORS['text_muted']};
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 8px;
+    }}
+    .metric-value {{
+        color: {COLORS['text']};
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+    }}
+    .metric-change {{
+        font-size: 13px;
+        font-weight: 500;
+        margin-top: 4px;
+    }}
+    
+    /* ── Grade Badges ── */
+    .badge {{
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+    }}
+    .badge-strong-buy {{ background: rgba(34, 197, 94, 0.15); color: {COLORS['green']}; }}
+    .badge-buy {{ background: rgba(59, 130, 246, 0.15); color: {COLORS['accent']}; }}
+    .badge-hold {{ background: rgba(245, 158, 11, 0.15); color: {COLORS['orange']}; }}
+    .badge-sell {{ background: rgba(239, 68, 68, 0.15); color: {COLORS['red']}; }}
+    .badge-strong-sell {{ background: rgba(220, 38, 38, 0.15); color: {COLORS['red_dim']}; }}
+    
+    /* ── Tables ── */
+    .stDataFrame {{
+        background-color: {COLORS['bg_card']} !important;
+        border: 1px solid {COLORS['border']};
+        border-radius: 12px;
+    }}
+    .stDataFrame thead tr th {{
+        background-color: {COLORS['bg_hover']} !important;
+        color: {COLORS['text_muted']} !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid {COLORS['border']} !important;
+    }}
+    .stDataFrame tbody tr td {{
+        color: {COLORS['text']} !important;
+        font-size: 13px !important;
+        border-bottom: 1px solid {COLORS['border']} !important;
+    }}
+    .stDataFrame tbody tr:hover td {{
+        background-color: {COLORS['bg_hover']} !important;
+    }}
+    
+    /* ── Buttons ── */
+    .stButton > button {{
+        background-color: {COLORS['bg_card']};
+        color: {COLORS['text']};
+        border: 1px solid {COLORS['border']};
         border-radius: 8px;
         padding: 8px 16px;
         font-weight: 500;
-    }
+        font-size: 13px;
+        transition: all 0.2s ease;
+    }}
+    .stButton > button:hover {{
+        background-color: {COLORS['bg_hover']};
+        border-color: {COLORS['accent']};
+        color: {COLORS['accent']};
+    }}
     
-    .stButton > button:hover {
-        background-color: #1C2128;
-        border-color: #3B82F6;
-    }
+    /* ── Primary Button ── */
+    .stButton > button[kind="primary"] {{
+        background-color: {COLORS['accent']};
+        color: white;
+        border: none;
+    }}
+    .stButton > button[kind="primary"]:hover {{
+        background-color: {COLORS['accent_hover']};
+        color: white;
+    }}
     
-    /* Radio buttons in sidebar */
-    .stRadio > label {
-        color: #8B949E !important;
-        font-size: 14px !important;
-    }
+    /* ── Navigation ── */
+    .nav-item {{
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        color: {COLORS['text_muted']};
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        margin-bottom: 2px;
+    }}
+    .nav-item:hover {{
+        background-color: {COLORS['bg_hover']};
+        color: {COLORS['text']};
+    }}
+    .nav-item.active {{
+        background-color: rgba(59, 130, 246, 0.1);
+        color: {COLORS['accent']};
+    }}
+    .nav-item .nav-icon {{
+        font-size: 18px;
+        width: 24px;
+        text-align: center;
+    }}
     
-    .stRadio > div[role="radiogroup"] > label {
-        background-color: transparent !important;
-        border: none !important;
-        color: #8B949E !important;
-        padding: 8px 12px !important;
+    /* ── Alerts ── */
+    .alert-card {{
+        background-color: {COLORS['bg_card']};
+        border-left: 3px solid;
+        border-radius: 0 8px 8px 0;
+        padding: 14px 16px;
+        margin-bottom: 8px;
+    }}
+    .alert-urgent {{ border-left-color: {COLORS['red']}; }}
+    .alert-high {{ border-left-color: {COLORS['orange']}; }}
+    .alert-medium {{ border-left-color: {COLORS['yellow']}; }}
+    .alert-low {{ border-left-color: {COLORS['accent']}; }}
+    
+    /* ── Progress Bars ── */
+    .progress-bar {{
+        height: 6px;
+        background-color: {COLORS['bg_hover']};
+        border-radius: 3px;
+        overflow: hidden;
+    }}
+    .progress-fill {{
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }}
+    
+    /* ── Tabs ── */
+    .stTabs [data-baseweb="tab-list"] {{
+        gap: 0;
+        background-color: {COLORS['bg_card']};
+        border-radius: 8px;
+        padding: 4px;
+    }}
+    .stTabs [data-baseweb="tab"] {{
+        color: {COLORS['text_muted']};
+        font-size: 13px;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 6px;
+    }}
+    .stTabs [aria-selected="true"] {{
+        background-color: {COLORS['bg_hover']};
+        color: {COLORS['text']};
+    }}
+    
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar {{ width: 6px; height: 6px; }}
+    ::-webkit-scrollbar-track {{ background: {COLORS['bg']}; }}
+    ::-webkit-scrollbar-thumb {{ background: {COLORS['border']}; border-radius: 3px; }}
+    ::-webkit-scrollbar-thumb:hover {{ background: {COLORS['border_hover']}; }}
+    
+    /* ── Hide defaults ── */
+    #MainMenu {{visibility: hidden;}}
+    footer {{visibility: hidden;}}
+    .stDeployButton {{display: none;}}
+    header {{visibility: hidden;}}
+    
+    /* ── Divider ── */
+    hr {{
+        border: none;
+        border-top: 1px solid {COLORS['border']};
+        margin: 16px 0;
+    }}
+    
+    /* ── Select / Input ── */
+    .stSelectbox > div > div, .stTextInput > div > div {{
+        background-color: {COLORS['bg_card']} !important;
+        border: 1px solid {COLORS['border']} !important;
         border-radius: 8px !important;
-    }
+        color: {COLORS['text']} !important;
+    }}
     
-    .stRadio > div[role="radiogroup"] > label:hover {
-        background-color: #1C2128 !important;
-        color: #FFFFFF !important;
-    }
-    
-    .stRadio > div[role="radiogroup"] > label[data-baseweb="radio"] > div:first-child {
-        background-color: #3B82F6 !important;
-    }
-    
-    /* Alert boxes */
-    .stAlert {
-        background-color: #161B22 !important;
-        border: 1px solid #30363D !important;
-        border-radius: 12px !important;
-    }
-    
-    .stAlert [data-baseweb="notification"] {
-        background-color: transparent !important;
-    }
-    
-    /* Error state */
-    .stError {
-        background-color: rgba(239, 68, 68, 0.1) !important;
-        border: 1px solid #EF4444 !important;
-        border-radius: 12px !important;
-    }
-    
-    /* Success state */
-    .stSuccess {
-        background-color: rgba(34, 197, 94, 0.1) !important;
-        border: 1px solid #22C55E !important;
-        border-radius: 12px !important;
-    }
-    
-    /* Warning state */
-    .stWarning {
-        background-color: rgba(245, 158, 11, 0.1) !important;
-        border: 1px solid #F59E0B !important;
-        border-radius: 12px !important;
-    }
-    
-    /* Info state */
-    .stInfo {
-        background-color: rgba(59, 130, 246, 0.1) !important;
-        border: 1px solid #3B82F6 !important;
-        border-radius: 12px !important;
-    }
-    
-    /* Slider */
-    .stSlider > div > div > div {
-        background-color: #3B82F6 !important;
-    }
-    
-    /* Select boxes */
-    .stSelectbox > div > div {
-        background-color: #161B22 !important;
-        border: 1px solid #30363D !important;
-        border-radius: 8px !important;
-        color: #FFFFFF !important;
-    }
-    
-    /* Tables */
-    .stTable {
-        background-color: #161B22;
-        border-radius: 12px;
-        border: 1px solid #30363D;
-    }
-    
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-        background: #0B0E14;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-        background: #30363D;
-        border-radius: 4px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-        background: #3B82F6;
-    }
-    
-    /* Hide default Streamlit elements */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    .stDeployButton {display: none;}
+    /* ── Slider ── */
+    .stSlider > div > div > div {{
+        background-color: {COLORS['accent']} !important;
+    }}
 </style>
 """, unsafe_allow_html=True)
 
-# Initialize Supabase
+# ═══════════════════════════════════════════════════════════════════════════════
+# INITIALIZE SUPABASE
+# ═══════════════════════════════════════════════════════════════════════════════
 sb = get_client()
 
-# Load data
+# ═══════════════════════════════════════════════════════════════════════════════
+# DATA LOADING
+# ═══════════════════════════════════════════════════════════════════════════════
 @st.cache_data(ttl=60)
 def load_positions():
     try:
@@ -236,109 +341,212 @@ def load_watchlist():
 @st.cache_data(ttl=300)
 def load_plays():
     try:
-        response = sb.table("plays").select("*").execute()
+        response = sb.table("plays").select("*").order("id", desc=True).execute()
         return response.data or []
     except:
         return []
 
-# Load all data
+@st.cache_data(ttl=300)
+def load_alerts():
+    try:
+        response = sb.table("alerts").select("*").order("id", desc=True).execute()
+        return response.data or []
+    except:
+        return []
+
 positions = load_positions()
 watchlist = load_watchlist()
 plays = load_plays()
+alerts = load_alerts()
 
-# Convert to DataFrame
 df = pd.DataFrame(positions)
-
 if not df.empty:
     df['live_value'] = df['live_value'].fillna(0)
     df['grade'] = df['grade'].fillna(0)
 
-# Sidebar
-st.sidebar.markdown("<h1 style='color: #3B82F6; font-size: 24px; font-weight: 800;'>VOX</h1>", unsafe_allow_html=True)
-st.sidebar.markdown("<p style='color: #8B949E; font-size: 12px; margin-bottom: 24px;'>v8.0 Python</p>", unsafe_allow_html=True)
-
-page = st.sidebar.radio("Navigation", [
-    "📊 Command Center",
-    "💼 Portfolio",
-    "👁️ Watchlist",
-    "🎯 Plays",
-    "🏦 Brokers",
-    "📈 Analysis"
-])
-
-st.sidebar.markdown("---")
-st.sidebar.markdown("<p style='color: #8B949E; font-size: 11px;'>© 2026 VOX Systems</p>", unsafe_allow_html=True)
-
-# Grade color function
+# ═══════════════════════════════════════════════════════════════════════════════
+# HELPER FUNCTIONS
+# ═══════════════════════════════════════════════════════════════════════════════
 def grade_color(grade):
-    if grade >= 75: return "#22c55e"
-    elif grade >= 60: return "#3b82f6"
-    elif grade >= 50: return "#f59e0b"
-    elif grade >= 30: return "#f97316"
-    else: return "#ef4444"
+    if grade >= 75: return COLORS['green']
+    elif grade >= 60: return COLORS['accent']
+    elif grade >= 50: return COLORS['orange']
+    elif grade >= 30: return COLORS['red']
+    else: return COLORS['red_dim']
 
 def grade_label(grade):
     if grade >= 75: return "STRONG_BUY"
     elif grade >= 60: return "BUY"
     elif grade >= 50: return "HOLD"
-    elif grade >= 30: return "WEAK"
-    else: return "AVOID"
+    elif grade >= 30: return "SELL"
+    else: return "STRONG_SELL"
 
-def grade_badge(grade):
+def grade_badge_html(grade, council=None):
+    label = council or grade_label(grade)
     color = grade_color(grade)
-    return f"<span style='background-color: {color}20; color: {color}; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;'>{grade:.0f}</span>"
+    css_class = label.lower().replace('_', '-')
+    return f"<span class='badge badge-{css_class}'>{grade:.0f} {label}</span>"
 
+def format_currency(value):
+    if value >= 1_000_000:
+        return f"${value/1_000_000:.2f}M"
+    elif value >= 1_000:
+        return f"${value:,.0f}"
+    return f"${value:.2f}"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SIDEBAR NAVIGATION
+# ═══════════════════════════════════════════════════════════════════════════════
+with st.sidebar:
+    # Logo
+    st.markdown(f"""
+    <div style='padding: 20px 0 16px 0;'>
+        <div style='display: flex; align-items: center; gap: 10px;'>
+            <div style='width: 32px; height: 32px; background: linear-gradient(135deg, {COLORS["accent"]}, {COLORS["purple"]}); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px;'>🎯</div>
+            <div>
+                <div style='color: {COLORS["text"]}; font-size: 18px; font-weight: 700; letter-spacing: -0.02em;'>VOX</div>
+                <div style='color: {COLORS["text_dim"]}; font-size: 11px; font-weight: 500;'>v12.0 Python</div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown(f"<hr style='border-color: {COLORS['border']}; margin: 0 0 12px 0;'>", unsafe_allow_html=True)
+    
+    # Navigation
+    nav_items = [
+        ("📊", "Command Center", "command"),
+        ("💼", "Portfolio", "portfolio"),
+        ("👁️", "Watchlist", "watchlist"),
+        ("🎯", "Plays", "plays"),
+        ("🔔", "Alerts", "alerts"),
+        ("🏦", "Brokers", "brokers"),
+        ("📈", "Analysis", "analysis"),
+    ]
+    
+    # Use session state for navigation
+    if 'page' not in st.session_state:
+        st.session_state.page = 'command'
+    
+    for icon, label, key in nav_items:
+        active = "active" if st.session_state.page == key else ""
+        if st.sidebar.button(f"{icon}  {label}", key=f"nav_{key}", use_container_width=True,
+                           type="secondary" if st.session_state.page != key else "primary"):
+            st.session_state.page = key
+            st.rerun()
+    
+    st.markdown(f"<hr style='border-color: {COLORS['border']}; margin: 16px 0;'>", unsafe_allow_html=True)
+    
+    # Portfolio summary in sidebar
+    if not df.empty:
+        total_value = df['live_value'].sum()
+        st.markdown(f"""
+        <div style='padding: 0 4px;'>
+            <div style='color: {COLORS["text_dim"]}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;'>Portfolio Value</div>
+            <div style='color: {COLORS["text"]}; font-size: 20px; font-weight: 700; letter-spacing: -0.02em;'>{format_currency(total_value)}</div>
+            <div style='color: {COLORS["text_muted"]}; font-size: 11px; margin-top: 2px;'>{len(df)} positions</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown(f"<hr style='border-color: {COLORS['border']}; margin: 16px 0;'>", unsafe_allow_html=True)
+    
+    st.markdown(f"""
+    <div style='padding: 0 4px;'>
+        <div style='color: {COLORS["text_dim"]}; font-size: 10px; font-weight: 500;'>© 2026 VOX Systems</div>
+        <div style='color: {COLORS["text_dim"]}; font-size: 10px;'>Last sync: {datetime.now().strftime('%H:%M')}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+page = st.session_state.page
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # COMMAND CENTER PAGE
-if page == "📊 Command Center":
-    st.title("Today's Command Center")
+# ═══════════════════════════════════════════════════════════════════════════════
+if page == "command":
+    st.title("Command Center")
     st.caption(f"Live from Supabase • {datetime.now().strftime('%B %d, %Y at %H:%M')}")
     
     if df.empty:
         st.warning("No positions found. Run broker sync.")
     else:
-        # KPIs
         total_value = df['live_value'].sum()
         total_positions = len(df)
         avg_grade = df[df['grade'] > 0]['grade'].mean() if not df.empty else 0
+        strong_buy_count = len(df[df['grade'] >= 75])
+        sell_count = len(df[df['grade'] < 50])
         
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric("Total AUM", f"${total_value:,.2f}")
-        with col2:
-            st.metric("Positions", total_positions)
-        with col3:
-            st.metric("Avg Grade", f"{avg_grade:.1f}")
-        with col4:
-            strong_buy = len(df[df['grade'] >= 75])
-            st.metric("Strong Buy", strong_buy)
+        # ── KPI Row ──
+        cols = st.columns(4)
+        metrics = [
+            ("Portfolio Value", format_currency(total_value), None),
+            ("Positions", f"{total_positions}", None),
+            ("Avg Grade", f"{avg_grade:.1f}", f"{strong_buy_count} STRONG_BUY"),
+            ("Risk Alerts", f"{sell_count}", "SELL signals" if sell_count > 0 else "Clean"),
+        ]
+        for col, (label, value, sub) in zip(cols, metrics):
+            with col:
+                st.markdown(f"""
+                <div class='metric-card'>
+                    <div class='metric-label'>{label}</div>
+                    <div class='metric-value'>{value}</div>
+                    {f'<div class="metric-change" style="color: {COLORS["text_muted"]}">{sub}</div>' if sub else ''}
+                </div>
+                """, unsafe_allow_html=True)
         
-        # Alerts section
-        st.subheader("🚨 Urgent Alerts")
-        low_grade = df[df['grade'] < 50].sort_values('live_value', ascending=False)
-        if not low_grade.empty:
-            alert_cols = st.columns(min(3, len(low_grade.head(6))))
-            for idx, (_, row) in enumerate(low_grade.head(6).iterrows()):
-                with alert_cols[idx % 3]:
-                    st.error(f"**{row['ticker']}** — Grade {row['grade']}\n\n${row['live_value']:,.2f}")
-        else:
-            st.success("✅ No urgent alerts")
+        # ── Alerts Section ──
+        st.markdown("<div style='margin-top: 24px;'></div>", unsafe_allow_html=True)
         
-        # Main content grid
-        col_left, col_right = st.columns([2, 1])
+        col_left, col_right = st.columns([3, 2])
         
         with col_left:
-            st.subheader("🏆 Top 10 Holdings")
+            st.subheader("🚨 Active Alerts")
+            
+            if alerts:
+                alert_df = pd.DataFrame(alerts)
+                urgent = alert_df[alert_df['priority'] == 'URGENT'] if 'priority' in alert_df.columns else pd.DataFrame()
+                high = alert_df[alert_df['priority'] == 'HIGH'] if 'priority' in alert_df.columns else pd.DataFrame()
+                
+                if not urgent.empty:
+                    for _, row in urgent.head(3).iterrows():
+                        st.markdown(f"""
+                        <div class='alert-card alert-urgent'>
+                            <div style='display: flex; justify-content: space-between; align-items: center;'>
+                                <div>
+                                    <span style='color: {COLORS["red"]}; font-size: 11px; font-weight: 600; text-transform: uppercase;'>URGENT</span>
+                                    <div style='color: {COLORS["text"]}; font-size: 14px; font-weight: 600; margin-top: 2px;'>{row.get('ticker', '')}</div>
+                                    <div style='color: {COLORS["text_muted"]}; font-size: 12px; margin-top: 2px;'>{row.get('message', '')[:80]}...</div>
+                                </div>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                
+                if not high.empty:
+                    for _, row in high.head(3).iterrows():
+                        st.markdown(f"""
+                        <div class='alert-card alert-high'>
+                            <div style='display: flex; justify-content: space-between; align-items: center;'>
+                                <div>
+                                    <span style='color: {COLORS["orange"]}; font-size: 11px; font-weight: 600; text-transform: uppercase;'>HIGH</span>
+                                    <div style='color: {COLORS["text"]}; font-size: 14px; font-weight: 600; margin-top: 2px;'>{row.get('ticker', '')}</div>
+                                    <div style='color: {COLORS["text_muted"]}; font-size: 12px; margin-top: 2px;'>{row.get('message', '')[:80]}...</div>
+                                </div>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+            else:
+                st.info("No active alerts")
+            
+            # ── Top Holdings ──
+            st.subheader("🏆 Top Holdings")
             top10 = df.nlargest(10, 'live_value')[['ticker', 'live_value', 'grade', 'council']].copy()
             
-            # Format for display
             display_data = []
             for _, row in top10.iterrows():
                 display_data.append({
                     'Ticker': row['ticker'],
-                    'Value': f"${row['live_value']:,.2f}",
+                    'Value': format_currency(row['live_value']),
                     'Grade': row['grade'],
                     'Signal': grade_label(row['grade']),
-                    'Council': row.get('council', 'N/A')
                 })
             
             top10_df = pd.DataFrame(display_data)
@@ -347,32 +555,43 @@ if page == "📊 Command Center":
                 column_config={
                     'Ticker': st.column_config.TextColumn("Ticker", width="small"),
                     'Value': st.column_config.TextColumn("Value", width="medium"),
-                    'Grade': st.column_config.NumberColumn("Grade", width="small"),
-                    'Signal': st.column_config.TextColumn("Signal", width="medium"),
-                    'Council': st.column_config.TextColumn("Council", width="small"),
+                    'Grade': st.column_config.ProgressColumn("Grade", min_value=0, max_value=100, width="medium",
+                        format="%d"),
+                    'Signal': st.column_config.TextColumn("Signal", width="small"),
                 },
-                width="stretch",
-                hide_index=True
+                hide_index=True,
+                use_container_width=True
             )
         
         with col_right:
+            # ── Grade Distribution ──
             st.subheader("📊 Grade Distribution")
             
             grade_buckets = {
                 'STRONG_BUY': len(df[df['grade'] >= 75]),
                 'BUY': len(df[(df['grade'] >= 60) & (df['grade'] < 75)]),
                 'HOLD': len(df[(df['grade'] >= 50) & (df['grade'] < 60)]),
-                'WEAK': len(df[(df['grade'] >= 30) & (df['grade'] < 50)]),
-                'AVOID': len(df[df['grade'] < 30])
+                'SELL': len(df[(df['grade'] >= 30) & (df['grade'] < 50)]),
+                'STRONG_SELL': len(df[df['grade'] < 30]),
             }
             
-            grade_df = pd.DataFrame({
-                'Category': list(grade_buckets.keys()),
-                'Count': list(grade_buckets.values())
-            })
+            for label, count in grade_buckets.items():
+                color = GRADE_COLORS.get(label, COLORS['text_muted'])
+                total = sum(grade_buckets.values())
+                pct = (count / total * 100) if total > 0 else 0
+                st.markdown(f"""
+                <div style='margin-bottom: 10px;'>
+                    <div style='display: flex; justify-content: space-between; margin-bottom: 4px;'>
+                        <span style='color: {color}; font-size: 12px; font-weight: 600;'>{label}</span>
+                        <span style='color: {COLORS["text_muted"]}; font-size: 12px;'>{count} ({pct:.0f}%)</span>
+                    </div>
+                    <div class='progress-bar'>
+                        <div class='progress-fill' style='width: {pct}%; background-color: {color};'></div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
             
-            st.bar_chart(grade_df.set_index('Category'), width="stretch", height=200)
-            
+            # ── By Broker ──
             st.subheader("🏦 By Broker")
             if 'brokers' in df.columns:
                 broker_data = []
@@ -389,245 +608,360 @@ if page == "📊 Command Center":
                     broker_df = broker_df.sort_values('value', ascending=False)
                     
                     for _, row in broker_df.iterrows():
-                        st.markdown(f"**{row['broker']}**: ${row['value']:,.2f}")
+                        pct = row['value'] / total_value * 100
+                        st.markdown(f"""
+                        <div style='display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid {COLORS["border"]};'>
+                            <span style='color: {COLORS["text"]}; font-size: 13px; font-weight: 500;'>{row['broker']}</span>
+                            <div style='text-align: right;'>
+                                <div style='color: {COLORS["text"]}; font-size: 13px; font-weight: 600;'>{format_currency(row['value'])}</div>
+                                <div style='color: {COLORS["text_muted"]}; font-size: 11px;'>{pct:.1f}%</div>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
 
+# ═══════════════════════════════════════════════════════════════════════════════
 # PORTFOLIO PAGE
-elif page == "💼 Portfolio":
-    st.title("💼 All Positions")
+# ═══════════════════════════════════════════════════════════════════════════════
+elif page == "portfolio":
+    st.title("Portfolio")
     
     if df.empty:
         st.warning("No positions found")
     else:
+        # Summary bar
+        total_value = df['live_value'].sum()
+        cols = st.columns(4)
+        with cols[0]:
+            st.metric("Total Value", format_currency(total_value))
+        with cols[1]:
+            st.metric("Positions", len(df))
+        with cols[2]:
+            avg_grade = df[df['grade'] > 0]['grade'].mean()
+            st.metric("Avg Grade", f"{avg_grade:.1f}")
+        with cols[3]:
+            sell_count = len(df[df['grade'] < 50])
+            st.metric("SELL Signals", sell_count, delta="Trim" if sell_count > 5 else None)
+        
         # Filters
-        col1, col2 = st.columns(2)
+        st.markdown("<div style='margin-top: 16px;'></div>", unsafe_allow_html=True)
+        
+        col1, col2, col3 = st.columns(3)
         with col1:
             min_grade = st.slider("Min Grade", 0, 100, 0)
         with col2:
-            broker_options = []
-            if 'brokers' in df.columns:
-                for brokers in df['brokers']:
-                    if isinstance(brokers, list):
-                        broker_options.extend(brokers)
-                    elif isinstance(brokers, str):
-                        broker_options.append(brokers)
-                broker_options = list(set(broker_options))
-            
-            broker_filter = st.multiselect("Broker", options=broker_options, default=[])
+            signal_filter = st.multiselect("Signal", 
+                options=['STRONG_BUY', 'BUY', 'HOLD', 'SELL', 'STRONG_SELL'],
+                default=[])
+        with col3:
+            search = st.text_input("Search Ticker", placeholder="e.g. NVDA")
         
         # Filter
-        filtered = df[df['grade'] >= min_grade]
-        if broker_filter and 'brokers' in df.columns:
-            filtered = filtered[filtered['brokers'].apply(
-                lambda x: any(b in (x if isinstance(x, list) else [x]) for b in broker_filter)
-            )]
+        filtered = df.copy()
+        if min_grade > 0:
+            filtered = filtered[filtered['grade'] >= min_grade]
+        if signal_filter:
+            filtered = filtered[filtered['grade'].apply(lambda g: grade_label(g) in signal_filter)]
+        if search:
+            filtered = filtered[filtered['ticker'].str.contains(search.upper(), na=False)]
         
         # Display
-        display_df = filtered[['ticker', 'shares', 'live_price', 'live_value', 'grade', 'council', 'brokers']].copy()
+        display_cols = ['ticker', 'shares', 'live_price', 'live_value', 'grade', 'council']
+        display_df = filtered[display_cols].copy()
         display_df['Signal'] = display_df['grade'].apply(grade_label)
+        display_df = display_df.sort_values('live_value', ascending=False)
         
         st.dataframe(
-            display_df.sort_values('live_value', ascending=False),
+            display_df,
             column_config={
-                'ticker': st.column_config.TextColumn("Ticker"),
-                'shares': st.column_config.NumberColumn("Shares", format="%.4f"),
-                'live_price': st.column_config.NumberColumn("Price", format="$%.2f"),
-                'live_value': st.column_config.NumberColumn("Value", format="$%.2f"),
-                'grade': st.column_config.NumberColumn("Grade"),
-                'Signal': st.column_config.TextColumn("Signal"),
-                'council': st.column_config.TextColumn("Council"),
-                'brokers': st.column_config.ListColumn("Brokers"),
+                'ticker': st.column_config.TextColumn("Ticker", width="small"),
+                'shares': st.column_config.NumberColumn("Shares", format="%.4f", width="small"),
+                'live_price': st.column_config.NumberColumn("Price", format="$%.2f", width="small"),
+                'live_value': st.column_config.NumberColumn("Value", format="$%.2f", width="medium"),
+                'grade': st.column_config.ProgressColumn("Grade", min_value=0, max_value=100, width="medium"),
+                'Signal': st.column_config.TextColumn("Signal", width="small"),
+                'council': st.column_config.TextColumn("Council", width="small"),
             },
-            width="stretch",
-            hide_index=True
+            hide_index=True,
+            use_container_width=True
         )
 
+# ═══════════════════════════════════════════════════════════════════════════════
 # WATCHLIST PAGE
-elif page == "👁️ Watchlist":
-    st.title("👁️ Watchlist")
+# ═══════════════════════════════════════════════════════════════════════════════
+elif page == "watchlist":
+    st.title("Watchlist")
     
     if watchlist:
         wl_df = pd.DataFrame(watchlist)
+        
+        # Summary
+        total = len(wl_df)
+        strong_buy = len(wl_df[wl_df['grade'] >= 75]) if 'grade' in wl_df.columns else 0
+        buy = len(wl_df[(wl_df['grade'] >= 60) & (wl_df['grade'] < 75)]) if 'grade' in wl_df.columns else 0
+        
+        cols = st.columns(4)
+        with cols[0]:
+            st.metric("Total Tickers", total)
+        with cols[1]:
+            st.metric("STRONG_BUY", strong_buy)
+        with cols[2]:
+            st.metric("BUY", buy)
+        with cols[3]:
+            st.metric("HOLD", total - strong_buy - buy)
+        
+        # Filters
+        col1, col2 = st.columns(2)
+        with col1:
+            min_grade_wl = st.slider("Min Grade", 0, 100, 50, key="wl_grade")
+        with col2:
+            search_wl = st.text_input("Search", placeholder="Ticker or name...", key="wl_search")
+        
+        # Filter
+        filtered_wl = wl_df.copy()
+        if 'grade' in filtered_wl.columns and min_grade_wl > 0:
+            filtered_wl = filtered_wl[filtered_wl['grade'] >= min_grade_wl]
+        if search_wl:
+            mask = filtered_wl['ticker'].str.contains(search_wl.upper(), na=False)
+            if 'name' in filtered_wl.columns:
+                mask = mask | filtered_wl['name'].str.contains(search_wl, case=False, na=False)
+            filtered_wl = filtered_wl[mask]
+        
+        # Sort by grade desc
+        if 'grade' in filtered_wl.columns:
+            filtered_wl = filtered_wl.sort_values('grade', ascending=False)
+        
+        # Display columns
+        display_cols = ['ticker', 'name', 'grade', 'council', 'entry_price', 'target_price', 'stop_loss']
+        available_cols = [c for c in display_cols if c in filtered_wl.columns]
+        
         st.dataframe(
-            wl_df[['ticker', 'grade', 'council', 'entry_price', 'target_price', 'stop_loss', 'status']],
-            width="stretch",
-            hide_index=True
+            filtered_wl[available_cols],
+            column_config={
+                'ticker': st.column_config.TextColumn("Ticker", width="small"),
+                'name': st.column_config.TextColumn("Name", width="medium"),
+                'grade': st.column_config.ProgressColumn("Grade", min_value=0, max_value=100, width="small"),
+                'council': st.column_config.TextColumn("Council", width="small"),
+                'entry_price': st.column_config.NumberColumn("Entry", format="$%.2f", width="small"),
+                'target_price': st.column_config.NumberColumn("Target", format="$%.2f", width="small"),
+                'stop_loss': st.column_config.NumberColumn("Stop", format="$%.2f", width="small"),
+            },
+            hide_index=True,
+            use_container_width=True
         )
     else:
         st.info("No watchlist items")
 
+# ═══════════════════════════════════════════════════════════════════════════════
 # PLAYS PAGE
-elif page == "🎯 Plays":
-    st.title("🎯 Active Plays")
+# ═══════════════════════════════════════════════════════════════════════════════
+elif page == "plays":
+    st.title("Active Plays")
     
     if plays:
         plays_df = pd.DataFrame(plays)
-        st.dataframe(
-            plays_df[['ticker', 'action', 'shares', 'price', 'broker', 'reason']],
-            width="stretch",
-            hide_index=True
-        )
+        
+        # Summary
+        active = plays_df[plays_df['closed'] == False] if 'closed' in plays_df.columns else plays_df
+        total_notional = active['notional'].sum() if 'notional' in active.columns else 0
+        
+        cols = st.columns(3)
+        with cols[0]:
+            st.metric("Active Plays", len(active))
+        with cols[1]:
+            st.metric("Total Notional", format_currency(total_notional))
+        with cols[2]:
+            buy_count = len(active[active['action'] == 'BUY']) if 'action' in active.columns else 0
+            st.metric("BUY Orders", buy_count)
+        
+        # Tabs for active / closed
+        tab_active, tab_closed = st.tabs(["🟢 Active", "⚪ Closed"])
+        
+        with tab_active:
+            active_df = active.copy()
+            if 'timestamp' in active_df.columns:
+                active_df = active_df.sort_values('timestamp', ascending=False)
+            
+            display_cols = ['ticker', 'action', 'shares', 'price', 'notional', 'grade_at_entry', 'notes']
+            available_cols = [c for c in display_cols if c in active_df.columns]
+            
+            st.dataframe(
+                active_df[available_cols],
+                column_config={
+                    'ticker': st.column_config.TextColumn("Ticker", width="small"),
+                    'action': st.column_config.TextColumn("Action", width="small"),
+                    'shares': st.column_config.NumberColumn("Shares", format="%.0f", width="small"),
+                    'price': st.column_config.NumberColumn("Price", format="$%.2f", width="small"),
+                    'notional': st.column_config.NumberColumn("Notional", format="$%.0f", width="small"),
+                    'grade_at_entry': st.column_config.NumberColumn("Grade", width="small"),
+                    'notes': st.column_config.TextColumn("Notes", width="large"),
+                },
+                hide_index=True,
+                use_container_width=True
+            )
+        
+        with tab_closed:
+            if 'closed' in plays_df.columns:
+                closed_df = plays_df[plays_df['closed'] == True]
+                if not closed_df.empty:
+                    st.dataframe(closed_df[['ticker', 'action', 'notional', 'exit_price', 'pnl', 'pnl_pct']],
+                        hide_index=True, use_container_width=True)
+                else:
+                    st.info("No closed plays")
+            else:
+                st.info("No closed plays")
     else:
         st.info("No active plays")
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# ALERTS PAGE
+# ═══════════════════════════════════════════════════════════════════════════════
+elif page == "alerts":
+    st.title("Alerts")
+    
+    if alerts:
+        alerts_df = pd.DataFrame(alerts)
+        
+        # Priority filter
+        if 'priority' in alerts_df.columns:
+            priorities = alerts_df['priority'].unique().tolist()
+            selected = st.multiselect("Filter by Priority", options=priorities, default=priorities)
+            if selected:
+                alerts_df = alerts_df[alerts_df['priority'].isin(selected)]
+        
+        # Sort by timestamp desc
+        if 'timestamp' in alerts_df.columns:
+            alerts_df = alerts_df.sort_values('timestamp', ascending=False)
+        
+        for _, row in alerts_df.head(20).iterrows():
+            priority = row.get('priority', 'MEDIUM')
+            alert_class = {
+                'URGENT': 'alert-urgent',
+                'HIGH': 'alert-high',
+                'MEDIUM': 'alert-medium',
+                'LOW': 'alert-low',
+            }.get(priority, 'alert-medium')
+            
+            color = {
+                'URGENT': COLORS['red'],
+                'HIGH': COLORS['orange'],
+                'MEDIUM': COLORS['yellow'],
+                'LOW': COLORS['accent'],
+            }.get(priority, COLORS['accent'])
+            
+            st.markdown(f"""
+            <div class='alert-card {alert_class}'>
+                <div style='display: flex; justify-content: space-between; align-items: flex-start;'>
+                    <div>
+                        <div style='display: flex; align-items: center; gap: 8px; margin-bottom: 4px;'>
+                            <span style='color: {color}; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;'>{priority}</span>
+                            <span style='color: {COLORS["text"]}; font-size: 14px; font-weight: 700;'>{row.get('ticker', '')}</span>
+                            <span style='color: {COLORS["text_dim"]}; font-size: 11px;'>{row.get('alert_type', '')}</span>
+                        </div>
+                        <div style='color: {COLORS["text_muted"]}; font-size: 13px; line-height: 1.5;'>{row.get('message', '')}</div>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.info("No active alerts")
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # BROKERS PAGE
-elif page == "🏦 Brokers":
-    st.title("🏦 Broker Status")
+# ═══════════════════════════════════════════════════════════════════════════════
+elif page == "brokers":
+    st.title("Broker Sync")
     
-    # eToro sync section
-    st.subheader("🔄 eToro Sync")
-    st.write("Click to fetch real-time data from eToro API")
+    brokers_config = [
+        ("eToro", "etoro_sync.py", "Live API"),
+        ("Binance", "binance_sync.py", "Live API"),
+        ("GBM Main", "gbm_sync.py", "JSON Export"),
+        ("GBM USA", "gbm_sync.py", "JSON Export"),
+        ("IBKR", "remaining_sync.py", "JSON Export"),
+        ("Schwab", "remaining_sync.py", "JSON Export"),
+        ("Bitso", "remaining_sync.py", "JSON Export"),
+    ]
     
-    if st.button("🔄 Sync eToro Now", type="primary"):
-        with st.spinner("Fetching from eToro API..."):
-            try:
-                import subprocess
-                result = subprocess.run(
-                    [sys.executable, "etoro_sync.py"],
-                    capture_output=True,
-                    text=True,
-                    timeout=120
-                )
-                
-                if result.returncode == 0:
-                    st.success("✅ eToro sync complete!")
-                    st.code(result.stdout)
-                    st.cache_data.clear()
-                    st.rerun()
-                else:
-                    st.error(f"❌ Sync failed:\n{result.stderr}")
-            except Exception as e:
-                st.error(f"❌ Error: {e}")
-    
-    st.markdown("---")
-    
-    # Binance sync section
-    st.subheader("🔄 Binance Sync")
-    st.write("Click to fetch real-time data from Binance API")
-    
-    if st.button("🔄 Sync Binance Now", type="primary"):
-        with st.spinner("Fetching from Binance API..."):
-            try:
-                import subprocess
-                result = subprocess.run(
-                    [sys.executable, "binance_sync.py"],
-                    capture_output=True,
-                    text=True,
-                    timeout=120
-                )
-                
-                if result.returncode == 0:
-                    st.success("✅ Binance sync complete!")
-                    st.code(result.stdout)
-                    st.cache_data.clear()
-                    st.rerun()
-                else:
-                    st.error(f"❌ Sync failed:\n{result.stderr}")
-            except Exception as e:
-                st.error(f"❌ Error: {e}")
-    
-    st.markdown("---")
-    
-    # GBM sync section
-    st.subheader("🔄 GBM Sync")
-    st.write("Click to sync GBM Main + GBM USA from JSON exports")
-    
-    if st.button("🔄 Sync GBM Now", type="primary"):
-        with st.spinner("Syncing GBM portfolios..."):
-            try:
-                import subprocess
-                result = subprocess.run(
-                    [sys.executable, "gbm_sync.py"],
-                    capture_output=True,
-                    text=True,
-                    timeout=120
-                )
-                
-                if result.returncode == 0:
-                    st.success("✅ GBM sync complete!")
-                    st.code(result.stdout)
-                    st.cache_data.clear()
-                    st.rerun()
-                else:
-                    st.error(f"❌ Sync failed:\n{result.stderr}")
-            except Exception as e:
-                st.error(f"❌ Error: {e}")
-    
-    st.markdown("---")
-    
-    # Remaining brokers sync section
-    st.subheader("🔄 IBKR, Schwab, Bitso Sync")
-    st.write("Click to sync remaining brokers from JSON exports")
-    
-    if st.button("🔄 Sync Remaining Now", type="primary"):
-        with st.spinner("Syncing IBKR, Schwab, Bitso..."):
-            try:
-                import subprocess
-                result = subprocess.run(
-                    [sys.executable, "remaining_sync.py"],
-                    capture_output=True,
-                    text=True,
-                    timeout=120
-                )
-                
-                if result.returncode == 0:
-                    st.success("✅ Remaining brokers sync complete!")
-                    st.code(result.stdout)
-                    st.cache_data.clear()
-                    st.rerun()
-                else:
-                    st.error(f"❌ Sync failed:\n{result.stderr}")
-            except Exception as e:
-                st.error(f"❌ Error: {e}")
-    
-    st.markdown("---")
-    
-    brokers_list = ['eToro', 'GBM USA', 'GBM Main', 'Binance', 'Schwab', 'IBKR', 'Bitso']
-    
-    for broker in brokers_list:
-        col1, col2, col3 = st.columns([2, 2, 1])
+    for broker, script, method in brokers_config:
+        col1, col2, col3, col4 = st.columns([2, 2, 2, 1])
         
         with col1:
-            st.write(f"**{broker}**")
+            st.markdown(f"**{broker}**")
+            st.caption(method)
         
         with col2:
             if not df.empty and 'brokers' in df.columns:
                 broker_value = df[df['brokers'].apply(
                     lambda x: broker in (x if isinstance(x, list) else [x]) if x else False
                 )]['live_value'].sum()
-                st.write(f"${broker_value:,.2f}")
+                st.markdown(f"<span style='color: {COLORS['text']}; font-weight: 600;'>${broker_value:,.2f}</span>", unsafe_allow_html=True)
             else:
                 st.write("$0.00")
         
         with col3:
-            if broker != 'eToro':
-                if st.button("Sync", key=f"sync_{broker}"):
-                    st.info(f"Syncing {broker}... (not implemented yet)")
+            status_color = COLORS['green'] if method == "Live API" else COLORS['orange']
+            st.markdown(f"<span style='color: {status_color}; font-size: 12px;'>● {method}</span>", unsafe_allow_html=True)
+        
+        with col4:
+            if st.button("Sync", key=f"sync_btn_{broker}"):
+                with st.spinner(f"Syncing {broker}..."):
+                    try:
+                        import subprocess
+                        result = subprocess.run(
+                            [sys.executable, script],
+                            capture_output=True, text=True, timeout=120,
+                            cwd=os.path.join(os.path.dirname(__file__), '..', 'brokers')
+                        )
+                        if result.returncode == 0:
+                            st.success(f"✅ {broker} synced")
+                            st.cache_data.clear()
+                        else:
+                            st.error(f"❌ Failed: {result.stderr[:200]}")
+                    except Exception as e:
+                        st.error(f"❌ Error: {e}")
+        
+        st.markdown(f"<hr style='border-color: {COLORS['border']}; margin: 8px 0;'>", unsafe_allow_html=True)
 
+# ═══════════════════════════════════════════════════════════════════════════════
 # ANALYSIS PAGE
-elif page == "📈 Analysis":
-    st.title("📈 Portfolio Analysis")
+# ═══════════════════════════════════════════════════════════════════════════════
+elif page == "analysis":
+    st.title("Portfolio Analysis")
     
     if not df.empty:
-        # Risk analysis
-        st.subheader("⚠️ Risk Analysis")
-        high_risk = df[df['grade'] < 40]['live_value'].sum()
         total = df['live_value'].sum()
-        risk_pct = (high_risk / total * 100) if total > 0 else 0
         
-        col1, col2 = st.columns(2)
+        # Risk metrics
+        col1, col2, col3 = st.columns(3)
         with col1:
-            st.metric("High Risk Exposure", f"${high_risk:,.2f}")
+            high_risk = df[df['grade'] < 40]['live_value'].sum()
+            risk_pct = (high_risk / total * 100) if total > 0 else 0
+            st.metric("High Risk Exposure", format_currency(high_risk), f"{risk_pct:.1f}%")
         with col2:
-            st.metric("Risk %", f"{risk_pct:.1f}%")
+            hold_risk = df[(df['grade'] >= 40) & (df['grade'] < 50)]['live_value'].sum()
+            hold_pct = (hold_risk / total * 100) if total > 0 else 0
+            st.metric("SELL Exposure", format_currency(hold_risk), f"{hold_pct:.1f}%")
+        with col3:
+            quality = df[df['grade'] >= 60]['live_value'].sum()
+            quality_pct = (quality / total * 100) if total > 0 else 0
+            st.metric("Quality (Grade 60+)", format_currency(quality), f"{quality_pct:.1f}%")
+        
+        # Risk assessment
+        st.markdown("<div style='margin-top: 16px;'></div>", unsafe_allow_html=True)
         
         if risk_pct > 20:
-            st.error(f"⚠️ High risk exposure is {risk_pct:.1f}% — consider trimming")
+            st.error(f"⚠️ High risk exposure is {risk_pct:.1f}% — consider trimming SELL-grade positions")
         elif risk_pct > 10:
             st.warning(f"⚠️ Moderate risk exposure is {risk_pct:.1f}%")
         else:
             st.success(f"✅ Risk exposure is healthy at {risk_pct:.1f}%")
         
-        # Grade distribution detail
-        st.subheader("📊 Grade Distribution")
+        # Grade distribution
+        st.subheader("Grade Distribution")
         grade_counts = df['grade'].apply(grade_label).value_counts()
-        st.bar_chart(grade_counts, width="stretch")
+        st.bar_chart(grade_counts, use_container_width=True)
+        
+        # Sector breakdown (if available)
+        st.subheader("Sector Breakdown")
+        st.info("Sector data requires yfinance lookups. Run full sync to populate.")
+    else:
+        st.warning("No positions loaded")
