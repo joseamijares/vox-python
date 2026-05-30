@@ -4,14 +4,10 @@ from datetime import datetime
 import sys
 import os
 
-# Add scripts path for vox_supabase_sync (local dev)
-sys.path.insert(0, '/Users/jos/.hermes/scripts')
+# Add src path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-# Try local first, then fallback to same directory
-try:
-    from vox_supabase_sync import get_client
-except ImportError:
-    from vox_supabase_sync import get_client
+from sync.vox_supabase_sync import get_client
 
 # Page config
 st.set_page_config(

@@ -1,55 +1,65 @@
 #!/usr/bin/env python3
 """Recalculate grades for all watchlist stocks."""
 import sys
-sys.path.insert(0, "/Users/jos/dev/vox-python/src")
+import os
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from grading.engine import batch_grade
+from sync.vox_supabase_sync import get_client
 import json
 
+
 def main():
-    # Load watchlist from JSON or Supabase
-    watchlist_file = "/Users/jos/dev/vox-python/.hermes/scripts/vox_watchlist_current.json"
-    
-    try:
-        with open(watchlist_file) as f:
-            watchlist = json.load(f)
-        tickers = [w["ticker"] for w in watchlist]
-    except FileNotFoundError:
-        print(f"Watchlist file not found: {watchlist_file}")
-        print("Using test tickers...")
-        tickers = ["AAPL", "MSFT", "GOOGL", "TSLA", "NVDA", "AMD", "META", "AMZN"]
+    # Load watchlist from Supabase
+    print("Loading watchlist from Supabase...")
+    sb = get_client()
+    resp = sb.table('watchlist').select('ticker').execute()
+    tickers = [w['ticker'] for w in resp.data]
     
     print(f"Grading {len(tickers)} stocks...\n")
     results = batch_grade(tickers)
     
-    # Save results
-    output = {
-        "calculated_at": str(results[0].calculated_at) if results else "",
-        "grades": [
-            {
-                "ticker": r.ticker,
-                "name": r.name,
-                "grade": r.overall_grade,
-                "council": r.council,
-                "technical": r.technical_score,
-                "fundamental": r.fundamental_score,
-                "sector": r.sector
-            }
-            for r in results
-        ]
-    }
+    # Update Supabase with new grades
+    print("\nUpdating Supabase...")
+    updated = 0
+    for r in results:
+        try:
+            sb.table('watchlist').update({
+                'grade': r.overall_grade,
+                'council': r.council
+            }).eq('ticker', r.ticker).execute()
+            updated += 1
+        except Exception as e:
+            print(f"  ❌ {r.ticker}: {e}")
     
-    output_file = "/Users/jos/dev/vox-python/grades_output.json"
-    with open(output_file, "w") as f:
-        json.dump(output, f, indent=2)
+    print(f"\n✅ Updated {updated} grades in Supabase")
     
-    print(f"\n✅ Grades saved to {output_file}")
+    # Also update positions
+    print("\nUpdating portfolio positions...")
+    pos_resp = sb.table('positions').select('ticker').execute()
+    pos_tickers = [p['ticker'] for p in pos_resp.data]
+    pos_results = batch_grade(pos_tickers)
+    
+    pos_updated = 0
+    for r in pos_results:
+        try:
+            sb.table('positions').update({
+                'grade': r.overall_grade,
+                'council': r.council
+            }).eq('ticker', r.ticker).execute()
+            pos_updated += 1
+        except Exception as e:
+            print(f"  ❌ {r.ticker}: {e}")
+    
+    print(f"✅ Updated {pos_updated} positions in Supabase")
     
     # Print top 10
-    print("\n🏆 TOP 10 STOCKS:")
+    print("\n🏆 TOP 10 WATCHLIST:")
     sorted_results = sorted(results, key=lambda x: x.overall_grade, reverse=True)
     for i, r in enumerate(sorted_results[:10], 1):
         print(f"{i:2d}. {r.ticker:6s} | Grade: {r.overall_grade:3d} | {r.council:12s} | {r.name[:30]}")
+
 
 if __name__ == "__main__":
     main()

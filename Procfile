@@ -1,1 +1,1 @@
-web: streamlit run vox_dashboard.py --server.port $PORT --server.headless true
+web: PYTHONPATH=src:$PYTHONPATH streamlit run src/dashboard/vox_dashboard.py --server.port $PORT --server.headless true
