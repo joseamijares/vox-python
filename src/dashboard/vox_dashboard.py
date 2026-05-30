@@ -332,140 +332,12 @@ st.markdown(f"""
     }}
     
     /* ═══════════════════════════════════════════════════════════════════ */
-    /* MOBILE RESPONSIVE STYLES                                          */
+    /* MOBILE RESPONSIVE STYLES — Simplified v12.3                        */
     /* ═══════════════════════════════════════════════════════════════════ */
     
     /* ── Mobile Header ── */
     .mobile-header {{
         display: none;
-    }}
-    
-    /* ── Bottom Navigation ── */
-    .mobile-nav {{
-        display: none;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background-color: {COLORS['bg_card']};
-        border-top: 1px solid {COLORS['border']};
-        padding: 8px 0 24px 0;
-        z-index: 9999;
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-    }}
-    .mobile-nav-item {{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 2px;
-        padding: 4px 0;
-        color: {COLORS['text_muted']};
-        font-size: 10px;
-        font-weight: 500;
-        text-decoration: none;
-        flex: 1;
-        transition: all 0.15s ease;
-    }}
-    .mobile-nav-item .mobile-nav-icon {{
-        font-size: 22px;
-        line-height: 1;
-    }}
-    .mobile-nav-item.active {{
-        color: {COLORS['accent']};
-    }}
-    .mobile-nav-item:active {{
-        transform: scale(0.95);
-    }}
-    
-    /* ── Mobile Menu Overlay ── */
-    .mobile-menu-overlay {{
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(4px);
-        z-index: 9998;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }}
-    .mobile-menu-overlay.open {{
-        opacity: 1;
-    }}
-    
-    .mobile-menu-drawer {{
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        width: 280px;
-        max-width: 80vw;
-        background-color: {COLORS['bg_card']};
-        border-right: 1px solid {COLORS['border']};
-        z-index: 9999;
-        transform: translateX(-100%);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        overflow-y: auto;
-    }}
-    .mobile-menu-drawer.open {{
-        transform: translateX(0);
-    }}
-    
-    .mobile-menu-header {{
-        padding: 20px;
-        border-bottom: 1px solid {COLORS['border']};
-    }}
-    
-    .mobile-menu-item {{
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 16px 20px;
-        color: {COLORS['text_muted']};
-        font-size: 16px;
-        font-weight: 500;
-        text-decoration: none;
-        border-bottom: 1px solid {COLORS['border']};
-        transition: all 0.15s ease;
-    }}
-    .mobile-menu-item:hover {{
-        background-color: {COLORS['bg_hover']};
-        color: {COLORS['text']};
-    }}
-    .mobile-menu-item.active {{
-        background-color: rgba(59, 130, 246, 0.1);
-        color: {COLORS['accent']};
-    }}
-    .mobile-menu-item .menu-icon {{
-        font-size: 22px;
-        width: 28px;
-        text-align: center;
-    }}
-    
-    .mobile-menu-close {{
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: {COLORS['bg_hover']};
-        border: 1px solid {COLORS['border']};
-        color: {COLORS['text']};
-        font-size: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-    }}
-    
-    /* ── Mobile Content Padding ── */
-    .mobile-content {{
-        padding-bottom: 80px;
     }}
     
     /* ═══════════════════════════════════════════════════════════════════ */
@@ -490,19 +362,6 @@ st.markdown(f"""
             z-index: 100;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-        }}
-        
-        /* Show mobile nav */
-        .mobile-nav {{
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-        }}
-        
-        /* Show mobile menu */
-        .mobile-menu-overlay,
-        .mobile-menu-drawer {{
-            display: block;
         }}
         
         /* Adjust main content */
@@ -558,8 +417,8 @@ st.markdown(f"""
     
     /* ── Safe area for notched phones ── */
     @supports (padding-bottom: env(safe-area-inset-bottom)) {{
-        .mobile-nav {{
-            padding-bottom: max(24px, env(safe-area-inset-bottom));
+        .main .block-container {{
+            padding-bottom: max(24px, env(safe-area-inset-bottom)) !important;
         }}
     }}
 </style>
@@ -568,114 +427,59 @@ st.markdown(f"""
 # ═══════════════════════════════════════════════════════════════════════════════
 # MOBILE HEADER (visible on mobile only via CSS)
 # ═══════════════════════════════════════════════════════════════════════════════
-def render_mobile_header(current_page):
-    """Render the mobile hamburger menu header"""
+def render_mobile_nav_native(current_page):
+    """Render mobile navigation using ONLY native Streamlit components.
+    
+    This replaces the broken custom HTML/JS mobile nav with a reliable
+    Streamlit-native approach that works on all devices.
+    """
+    # Mobile header with logo
     st.markdown(f"""
-    <div class="mobile-header">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <button onclick="toggleMobileMenu()" style="background: none; border: none; color: {COLORS['text']}; font-size: 24px; cursor: pointer; padding: 4px;">
-                ☰
-            </button>
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 28px; height: 28px; background: linear-gradient(135deg, {COLORS['accent']}, {COLORS['purple']}); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px;">🎯</div>
-                <span style="color: {COLORS['text']}; font-size: 16px; font-weight: 700;">VOX</span>
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; margin-bottom: 8px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, {COLORS['accent']}, {COLORS['purple']}); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px;">🎯</div>
+            <div>
+                <div style="color: {COLORS['text']}; font-size: 18px; font-weight: 700;">VOX</div>
+                <div style="color: {COLORS['text_dim']}; font-size: 11px;">v12.3 Mobile</div>
             </div>
         </div>
-        <div style="color: {COLORS['text_muted']}; font-size: 13px; font-weight: 500;">
-            {PAGE_LABELS.get(current_page, 'Dashboard')}
-        </div>
-    </div>
-    
-    <script>
-        function toggleMobileMenu() {{
-            const overlay = document.getElementById('mobile-menu-overlay');
-            const drawer = document.getElementById('mobile-menu-drawer');
-            overlay.classList.toggle('open');
-            drawer.classList.toggle('open');
-            document.body.style.overflow = drawer.classList.contains('open') ? 'hidden' : '';
-        }}
-        
-        function closeMobileMenu() {{
-            const overlay = document.getElementById('mobile-menu-overlay');
-            const drawer = document.getElementById('mobile-menu-drawer');
-            overlay.classList.remove('open');
-            drawer.classList.remove('open');
-            document.body.style.overflow = '';
-        }}
-        
-        // Close menu when clicking overlay
-        document.addEventListener('click', function(e) {{
-            if (e.target.id === 'mobile-menu-overlay') {{
-                closeMobileMenu();
-            }}
-        }});
-        
-        // Handle page navigation from mobile menu
-        function navigateToPage(page) {{
-            closeMobileMenu();
-            // The actual navigation is handled by Streamlit buttons
-        }}
-    </script>
-    """, unsafe_allow_html=True)
-
-def render_mobile_menu(current_page):
-    """Render the slide-out mobile menu drawer"""
-    menu_items_html = ""
-    for key, label in PAGE_LABELS.items():
-        active_class = "active" if current_page == key else ""
-        icon = PAGE_ICONS.get(key, "•")
-        menu_items_html += f"""
-        <a href="?page={key}" class="mobile-menu-item {active_class}">
-            <span class="menu-icon">{icon}</span>
-            <span>{label}</span>
-        </a>
-        """
-    
-    st.markdown(f"""
-    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
-    <div id="mobile-menu-drawer" class="mobile-menu-drawer">
-        <div class="mobile-menu-header">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, {COLORS['accent']}, {COLORS['purple']}); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px;">🎯</div>
-                <div>
-                    <div style="color: {COLORS['text']}; font-size: 18px; font-weight: 700;">VOX</div>
-                    <div style="color: {COLORS['text_dim']}; font-size: 11px;">v12.0 Python</div>
-                </div>
-            </div>
-            <button class="mobile-menu-close" onclick="closeMobileMenu()">✕</button>
-        </div>
-        <div style="padding-top: 8px;">
-            {menu_items_html}
-        </div>
-        <div style="padding: 20px; border-top: 1px solid {COLORS['border']}; margin-top: auto;">
-            <div style="color: {COLORS['text_dim']}; font-size: 11px;">© 2026 VOX Systems</div>
-            <div style="color: {COLORS['text_dim']}; font-size: 11px; margin-top: 4px;">Last sync: {datetime.now().strftime('%H:%M')}</div>
+        <div style="color: {COLORS['accent']}; font-size: 13px; font-weight: 600;">
+            {PAGE_ICONS.get(current_page, '📊')} {PAGE_LABELS.get(current_page, 'Dashboard')}
         </div>
     </div>
     """, unsafe_allow_html=True)
-
-def render_mobile_bottom_nav(current_page):
-    """Render the bottom tab bar for mobile"""
-    # Show max 5 items on bottom nav
+    
+    # Native Streamlit segmented control for page switching
+    # Use columns for a tab-bar-like experience
     bottom_items = ['command', 'portfolio', 'watchlist', 'plays', 'alerts']
     
-    nav_html = ""
-    for key in bottom_items:
-        active_class = "active" if current_page == key else ""
-        icon = PAGE_ICONS.get(key, "•")
-        label = PAGE_LABELS.get(key, key)
-        nav_html += f"""
-        <a href="?page={key}" class="mobile-nav-item {active_class}">
-            <span class="mobile-nav-icon">{icon}</span>
-            <span>{label}</span>
-        </a>
-        """
+    # Create a radio that looks like tabs
+    page_options = [f"{PAGE_ICONS.get(k, '•')} {PAGE_LABELS.get(k, k)}" for k in bottom_items]
+    current_idx = bottom_items.index(current_page) if current_page in bottom_items else 0
     
-    st.markdown(f"""
-    <div class="mobile-nav">
-        {nav_html}
-    </div>
-    """, unsafe_allow_html=True)
+    selected = st.radio(
+        "Navigation",
+        options=page_options,
+        index=current_idx,
+        horizontal=True,
+        label_visibility="collapsed",
+        key="mobile_nav_radio"
+    )
+    
+    # Extract the page key from selection
+    selected_page = None
+    for key in bottom_items:
+        if PAGE_LABELS.get(key, key) in selected:
+            selected_page = key
+            break
+    
+    if selected_page and selected_page != current_page:
+        st.session_state.page = selected_page
+        st.query_params['page'] = selected_page
+        st.rerun()
+    
+    # Divider
+    st.markdown(f"<hr style='border-color: {COLORS['border']}; margin: 12px 0;'>", unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # INITIALIZE SUPABASE
@@ -785,11 +589,9 @@ for key in PAGE_LABELS:
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# MOBILE UI RENDERING
+# MOBILE UI RENDERING — Native Streamlit (reliable on all devices)
 # ═══════════════════════════════════════════════════════════════════════════════
-render_mobile_header(page)
-render_mobile_menu(page)
-render_mobile_bottom_nav(page)
+render_mobile_nav_native(page)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # DESKTOP SIDEBAR NAVIGATION
