@@ -1091,6 +1091,37 @@ def score_technical(ticker: str, use_alpha_zoo: bool = True) -> Dict:
         except Exception:
             pass
     
+    # ── Mean Reversion Signal Detection ──
+    mean_reversion_signals = []
+    if alpha_factors:
+        # Oversold signals (bullish mean reversion)
+        if "qlib_cntd5" in alpha_factors and alpha_factors["qlib_cntd5"] >= 4:
+            mean_reversion_signals.append("5D_OVERSOLD")
+        if "qlib_cntd10" in alpha_factors and alpha_factors["qlib_cntd10"] >= 7:
+            mean_reversion_signals.append("10D_OVERSOLD")
+        if "qlib_cntd20" in alpha_factors and alpha_factors["qlib_cntd20"] >= 14:
+            mean_reversion_signals.append("20D_OVERSOLD")
+        if "gtja_002" in alpha_factors and alpha_factors["gtja_002"] < -0.1:
+            mean_reversion_signals.append("INTRADAY_OVERSOLD")
+        if "acad_maxdd20d" in alpha_factors and alpha_factors["acad_maxdd20d"] < -0.15:
+            mean_reversion_signals.append("DEEP_DRAWDOWN")
+        if rsi < 30:
+            mean_reversion_signals.append("RSI_OVERSOLD")
+        
+        # Overbought signals (bearish mean reversion)
+        if "qlib_cntp5" in alpha_factors and alpha_factors["qlib_cntp5"] >= 4:
+            mean_reversion_signals.append("5D_OVERBOUGHT")
+        if "qlib_cntp10" in alpha_factors and alpha_factors["qlib_cntp10"] >= 8:
+            mean_reversion_signals.append("10D_OVERBOUGHT")
+        if "qlib_cntp20" in alpha_factors and alpha_factors["qlib_cntp20"] >= 15:
+            mean_reversion_signals.append("20D_OVERBOUGHT")
+        if "gtja_002" in alpha_factors and alpha_factors["gtja_002"] > 0.1:
+            mean_reversion_signals.append("INTRADAY_OVERBOUGHT")
+        if "acad_maxdd20d" in alpha_factors and alpha_factors["acad_maxdd20d"] > -0.02:
+            mean_reversion_signals.append("NEAR_HIGHS")
+        if rsi > 75:
+            mean_reversion_signals.append("RSI_OVERBOUGHT")
+    
     # ── Combined scoring ──
     if alpha_factors:
         score = int(
@@ -1112,6 +1143,7 @@ def score_technical(ticker: str, use_alpha_zoo: bool = True) -> Dict:
         "alpha_zoo_enabled": use_alpha_zoo and bool(alpha_factors),
         "alpha_zoo_score": alpha_score if alpha_factors else None,
         "alpha_factor_count": len(alpha_factors),
+        "mean_reversion_signals": mean_reversion_signals if mean_reversion_signals else [],
     }
     
     if alpha_factors:
