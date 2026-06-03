@@ -10,7 +10,7 @@ from pathlib import Path
 from datetime import datetime
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from sync.vox_supabase_sync import get_client
+from sync.vox_postgres_sync import get_client
 
 def sync_gbm_main():
     """Sync GBM Main from JSON export."""

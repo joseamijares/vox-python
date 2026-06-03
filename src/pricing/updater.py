@@ -51,16 +51,15 @@ def update_all_prices(sb_client) -> Dict:
     for ticker in tickers:
         result = get_current_price(ticker)
         
-        if not result['valid']:
-            print(f"  ❌ {ticker}: {result.get('error', 'Unknown error')}")
+        if not result['valid'] or result['price'] is None:
+            print(f"  ❌ {ticker}: {result.get('error', 'Price unavailable')}")
             failed += 1
             continue
         
         try:
-            # Update position price
+            # Update position price (price_change_pct calculated on read, not stored)
             sb_client.table('positions').update({
                 'live_price': result['price'],
-                'price_change_pct': result['change_pct'],
                 'updated_at': datetime.now().isoformat()
             }).eq('ticker', ticker).execute()
             

@@ -262,7 +262,7 @@ def run_gbm_sync(mxn_rate: float = DEFAULT_MXN_RATE) -> str:
     
     # Load Supabase client
     sys.path.insert(0, str(Path.home() / '.hermes' / 'scripts'))
-    from sync.vox_supabase_sync import get_client
+    from sync.vox_postgres_sync import get_client
     sb = get_client()
     
     all_valid = []

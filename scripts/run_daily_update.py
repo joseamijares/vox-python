@@ -19,14 +19,13 @@ import sys
 import os
 
 sys.path.insert(0, 'src')
-os.environ['SUPABASE_URL'] = 'https://msvcrlijclhuifdjjmyy.supabase.co'
 
 with open('.env', 'r') as f:
     for line in f:
-        if line.startswith('SUPABASE_KEY='):
-            os.environ['SUPABASE_KEY'] = line.strip().split('=', 1)[1]
+        if line.startswith('DATABASE_URL='):
+            os.environ['DATABASE_URL'] = line.strip().split('=', 1)[1]
 
-from supabase import create_client
+from sync.vox_postgres_sync import get_client
 from pricing.updater import update_all_prices
 from alerts.notifier import run_daily_alerts
 
@@ -38,9 +37,9 @@ def main():
     print()
     
     # Connect to Supabase
-    sb = create_client(
-        os.environ['SUPABASE_URL'],
-        os.environ['SUPABASE_KEY']
+    sb = get_client()  # was: create_client(
+        os.environ['DATABASE_URL'],
+        os.environ['DATABASE_URL']
     )
     
     # Update prices

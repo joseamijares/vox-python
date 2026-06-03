@@ -77,13 +77,19 @@ def check_daily_moves(sb_client, threshold: float = 10.0) -> List[Dict]:
     
     resp = sb_client.table('positions').select('*').execute()
     for pos in resp.data:
-        change_pct = pos.get('price_change_pct', 0) or 0
+        # Calculate change_pct from live_price vs avg_cost (fallback to 0)
+        avg_cost = pos.get('avg_cost', 0) or 0
+        live_price = pos.get('live_price', 0) or 0
+        if avg_cost > 0 and live_price > 0:
+            change_pct = ((live_price - avg_cost) / avg_cost) * 100
+        else:
+            change_pct = 0
         
         if abs(change_pct) >= threshold:
             alerts.append({
                 'ticker': pos['ticker'],
                 'change_pct': change_pct,
-                'price': pos.get('live_price', 0),
+                'price': live_price,
                 'type': 'daily_move'
             })
     
