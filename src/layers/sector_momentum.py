@@ -113,7 +113,7 @@ def compute_sector_momentum() -> Dict:
             'computed_at': datetime.now().isoformat()
         })
     
-    # Store in Supabase
+    # Store in Postgres
     print(f"Storing {len(sector_results)} sector momentum records...")
     for sr in sector_results:
         try:

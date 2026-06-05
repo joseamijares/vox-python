@@ -10,7 +10,7 @@ from typing import Dict, List, Optional
 from datetime import datetime
 from grading.technical import score_technical, get_alpha_zoo_summary
 
-# Supabase setup
+# Postgres setup
 with open(os.path.expanduser('~/dev/vox-python/.env'), 'r') as f:
     for line in f:
         if line.startswith('SUPABASE_KEY='):
@@ -19,7 +19,7 @@ with open(os.path.expanduser('~/dev/vox-python/.env'), 'r') as f:
 from sync.vox_postgres_sync import get_client
 
 def run_alpha_zoo_scan(tickers: List[str]) -> Dict:
-    """Run full Alpha Zoo 452-factor scan on tickers. Store results in Supabase."""
+    """Run full Alpha Zoo 452-factor scan on tickers. Store results in Postgres."""
     
     results = []
     print(f"Running Alpha Zoo scan on {len(tickers)} tickers...")
@@ -57,8 +57,8 @@ def run_alpha_zoo_scan(tickers: List[str]) -> Dict:
                 'computed_at': datetime.now().isoformat()
             })
     
-    # Store in Supabase (upsert)
-    print(f"\nStoring {len(results)} results in Supabase...")
+    # Store in Postgres (upsert)
+    print(f"\nStoring {len(results)} results in Postgres...")
     stored = 0
     for r in results:
         try:

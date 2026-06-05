@@ -148,8 +148,8 @@ def validate_gbm_positions(positions: List[Dict]) -> Tuple[List[Dict], List[Dict
     return valid, rejected
 
 
-def sync_to_supabase(positions: List[Dict], sb_client) -> Dict:
-    """Sync validated positions to Supabase."""
+def sync_to_postgres(positions: List[Dict], sb_client) -> Dict:
+    """Sync validated positions to Postgres."""
     stats = {
         'inserted': 0,
         'updated': 0,
@@ -260,7 +260,7 @@ def run_gbm_sync(mxn_rate: float = DEFAULT_MXN_RATE) -> str:
     """Main entry point: run full GBM sync."""
     print("🚀 Starting GBM Portfolio Sync...\n")
     
-    # Load Supabase client
+    # Load Postgres client
     sys.path.insert(0, str(Path.home() / '.hermes' / 'scripts'))
     from sync.vox_postgres_sync import get_client
     sb = get_client()
@@ -279,7 +279,7 @@ def run_gbm_sync(mxn_rate: float = DEFAULT_MXN_RATE) -> str:
         valid, rejected = validate_gbm_positions(positions)
         print(f"  ✅ Valid: {len(valid)} | ❌ Rejected: {len(rejected)}")
         
-        stats = sync_to_supabase(valid, sb)
+        stats = sync_to_postgres(valid, sb)
         all_valid.extend(valid)
         all_rejected.extend(rejected)
         for k in all_stats:
@@ -297,7 +297,7 @@ def run_gbm_sync(mxn_rate: float = DEFAULT_MXN_RATE) -> str:
         valid, rejected = validate_gbm_positions(positions)
         print(f"  ✅ Valid: {len(valid)} | ❌ Rejected: {len(rejected)}")
         
-        stats = sync_to_supabase(valid, sb)
+        stats = sync_to_postgres(valid, sb)
         all_valid.extend(valid)
         all_rejected.extend(rejected)
         for k in all_stats:

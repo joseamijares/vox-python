@@ -181,7 +181,7 @@ def run_macro_scan() -> Dict:
     print("Computing macro signals...")
     signals = compute_macro_signals(macro_data)
     
-    # Store in Supabase
+    # Store in Postgres
     
     print(f"Storing {len(signals)} macro signals...")
     stored = 0

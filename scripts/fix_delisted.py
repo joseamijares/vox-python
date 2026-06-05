@@ -12,8 +12,8 @@ from datetime import datetime
 
 
 def main():
-    # Load watchlist from Supabase
-    print("Loading watchlist from Supabase...")
+    # Load watchlist from Postgres
+    print("Loading watchlist from Postgres...")
     sb = get_client()
     resp = sb.table('watchlist').select('ticker').execute()
     tickers = [w['ticker'] for w in resp.data]
@@ -22,7 +22,7 @@ def main():
     print(f"Checking {len(tickers)} stocks for delisted...")
     results = validate_watchlist(tickers)
     
-    # Auto-fix delisted in Supabase
+    # Auto-fix delisted in Postgres
     print("\n" + "="*60)
     print("FIXING DELISTED STOCKS:")
     print("="*60)

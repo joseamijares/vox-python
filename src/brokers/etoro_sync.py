@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-eToro Sync - Fetches real data from eToro API and updates Supabase
+eToro Sync - Fetches real data from eToro API and updates Postgres
 """
 
 import os
@@ -74,7 +74,7 @@ def fetch_instruments(env: dict, instrument_ids: list) -> dict:
     return mapping
 
 def sync_etoro():
-    """Fetch eToro portfolio and update Supabase."""
+    """Fetch eToro portfolio and update Postgres."""
     env = load_env()
     sb = get_client()
 
@@ -155,8 +155,8 @@ def sync_etoro():
     except:
         watchlist = {}
 
-    # Update Supabase
-    print(f"\n🔄 Updating Supabase with {len(aggregated)} eToro positions...")
+    # Update Postgres
+    print(f"\n🔄 Updating Postgres with {len(aggregated)} eToro positions...")
 
     # First, delete old eToro positions
     try:
@@ -228,7 +228,7 @@ def sync_etoro():
         except Exception as e:
             print(f"❌ Error with {symbol}: {e}")
 
-    print(f"✅ Inserted {inserted} eToro positions into Supabase")
+    print(f"✅ Inserted {inserted} eToro positions into Postgres")
     print(f"💰 Total eToro value: ${direct_exposure:,.2f}")
 
     # Save to JSON for backup

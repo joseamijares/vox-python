@@ -159,7 +159,7 @@ def run_weather_scan() -> Dict:
     # Map to tickers
     patterns = map_tickers_to_weather(sb, patterns)
     
-    # Store in Supabase
+    # Store in Postgres
     print(f"Storing {len(patterns)} weather patterns...")
     for p in patterns:
         p['computed_at'] = datetime.now().isoformat()

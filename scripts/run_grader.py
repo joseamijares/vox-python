@@ -11,8 +11,8 @@ import json
 
 
 def main():
-    # Load watchlist from Supabase
-    print("Loading watchlist from Supabase...")
+    # Load watchlist from Postgres
+    print("Loading watchlist from Postgres...")
     sb = get_client()
     resp = sb.table('watchlist').select('ticker').execute()
     tickers = [w['ticker'] for w in resp.data]
@@ -20,8 +20,8 @@ def main():
     print(f"Grading {len(tickers)} stocks...\n")
     results = batch_grade(tickers)
     
-    # Update Supabase with new grades
-    print("\nUpdating Supabase...")
+    # Update Postgres with new grades
+    print("\nUpdating Postgres...")
     updated = 0
     for r in results:
         try:
@@ -33,7 +33,7 @@ def main():
         except Exception as e:
             print(f"  ❌ {r.ticker}: {e}")
     
-    print(f"\n✅ Updated {updated} grades in Supabase")
+    print(f"\n✅ Updated {updated} grades in Postgres")
     
     # Also update positions
     print("\nUpdating portfolio positions...")
@@ -52,7 +52,7 @@ def main():
         except Exception as e:
             print(f"  ❌ {r.ticker}: {e}")
     
-    print(f"✅ Updated {pos_updated} positions in Supabase")
+    print(f"✅ Updated {pos_updated} positions in Postgres")
     
     # Print top 10
     print("\n🏆 TOP 10 WATCHLIST:")

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Binance Sync - Fetches real data from Binance API and updates Supabase
+Binance Sync - Fetches real data from Binance API and updates Postgres
 """
 
 import os
@@ -48,7 +48,7 @@ def resolve_price(asset, prices):
     return 0
 
 def sync_binance():
-    """Fetch Binance portfolio and update Supabase."""
+    """Fetch Binance portfolio and update Postgres."""
     try:
         from binance.client import Client
     except ImportError:
@@ -185,8 +185,8 @@ def sync_binance():
     except:
         watchlist = {}
 
-    # Update Supabase
-    print(f"\n🔄 Updating Supabase with {len(balances)} Binance positions...")
+    # Update Postgres
+    print(f"\n🔄 Updating Postgres with {len(balances)} Binance positions...")
 
     # First, delete old Binance positions
     try:
@@ -263,7 +263,7 @@ def sync_binance():
         except Exception as e:
             print(f"❌ Error with {symbol}: {e}")
 
-    print(f"✅ Processed {inserted} Binance positions into Supabase")
+    print(f"✅ Processed {inserted} Binance positions into Postgres")
     print(f"💰 Total Binance value: ${total_usd:,.2f}")
 
     # Save to JSON for backup

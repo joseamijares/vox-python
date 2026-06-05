@@ -539,7 +539,7 @@ def render_mobile_nav_native(current_page):
     st.markdown(f"<hr style='border-color: {COLORS['border']}; margin: 12px 0;'>", unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# INITIALIZE SUPABASE
+# INITIALIZE POSTGRES
 # ═══════════════════════════════════════════════════════════════════════════════
 sb = get_client()
 
@@ -694,7 +694,7 @@ with st.sidebar:
 # ═══════════════════════════════════════════════════════════════════════════════
 if page == "command":
     st.title("Command Center")
-    st.caption(f"Live from Supabase • {datetime.now().strftime('%B %d, %Y at %H:%M')}")
+    st.caption(f"Live from Postgres • {datetime.now().strftime('%B %d, %Y at %H:%M')}")
     
     if df.empty:
         st.warning("No positions found. Run broker sync.")

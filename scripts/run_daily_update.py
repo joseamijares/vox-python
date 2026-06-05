@@ -38,7 +38,7 @@ def main():
     print("=" * 60)
     print()
     
-    # Connect to Supabase
+    # Connect to Postgres
     sb = get_client()  # was: create_client(os.environ['DATABASE_URL'], os.environ['DATABASE_URL'])
     
     # Update prices

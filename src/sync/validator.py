@@ -105,8 +105,8 @@ def validate_portfolio(positions: List[Dict]) -> Dict:
     }
 
 
-def sync_portfolio_to_supabase(positions: List[Dict], sb_client) -> Dict:
-    """Sync validated positions to Supabase, replacing all existing."""
+def sync_portfolio_to_postgres(positions: List[Dict], sb_client) -> Dict:
+    """Sync validated positions to Postgres, replacing all existing."""
     validation = validate_portfolio(positions)
     
     # Delete all existing positions

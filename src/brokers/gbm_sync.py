@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-GBM Sync - Reads GBM JSON exports and updates Supabase
+GBM Sync - Reads GBM JSON exports and updates Postgres
 Handles both GBM Main (MXN) and GBM USA (USD)
 """
 

@@ -37,7 +37,7 @@ def get_current_price(ticker: str) -> Dict:
 
 
 def update_all_prices(sb_client) -> Dict:
-    """Update prices for all positions in Supabase."""
+    """Update prices for all positions in Postgres."""
     # Get all positions
     resp = sb_client.table('positions').select('ticker').execute()
     tickers = list(set([p['ticker'] for p in resp.data]))
