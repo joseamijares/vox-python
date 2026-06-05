@@ -234,7 +234,7 @@ def generate_report(valid: List[Dict], rejected: List[Dict], stats: Dict) -> str
     lines.append(f"💰 Total value synced: ${stats['total_value']:,.2f}")
     lines.append("")
     
-    lines.append("--- SYNCED TO SUPABASE ---")
+    lines.append("--- SYNCED TO POSTGRES ---")
     lines.append(f"  Inserted: {stats['inserted']}")
     lines.append(f"  Updated: {stats['updated']}")
     lines.append(f"  Failed: {stats['failed']}")

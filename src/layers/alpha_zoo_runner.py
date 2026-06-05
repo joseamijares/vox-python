@@ -13,8 +13,8 @@ from grading.technical import score_technical, get_alpha_zoo_summary
 # Postgres setup
 with open(os.path.expanduser('~/dev/vox-python/.env'), 'r') as f:
     for line in f:
-        if line.startswith('SUPABASE_KEY='):
-            os.environ['SUPABASE_KEY'] = line.strip().split('=', 1)[1]
+        if line.startswith('PG_PASSWORD='):
+            os.environ['PG_PASSWORD'] = line.strip().split('=', 1)[1]
 
 from sync.vox_postgres_sync import get_client
 
