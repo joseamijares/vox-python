@@ -1,15 +1,26 @@
 #!/bin/bash
-# Grader service start script
-# Runs the daily sync + grading pipeline
+# VOX Grader Service — Integrated 6-Layer Pipeline
+# Runs: Broker sync → Layer analysis → Integrated grading
 
 cd /app
-
 export PYTHONPATH=src:$PYTHONPATH
 
-echo "🚀 VOX Grader Service Starting..."
-echo "⏰ Running daily sync + grade pipeline..."
+echo "🚀 VOX Integrated Grader Starting..."
+echo "⏰ $(date)"
+echo ""
 
-# Run the full pipeline
-python3 scripts/auto_grade_positions.py
+# Step 1: Sync brokers (eToro API + manual JSON)
+echo "📡 Step 1: Broker Sync..."
+python3 src/brokers/etoro_sync.py 2>&1 || echo "  ⚠️ eToro sync had issues"
+python3 src/brokers/gbm_sync.py 2>&1 || echo "  ⚠️ GBM sync had issues"
+python3 src/brokers/binance_sync.py 2>&1 || echo "  ⚠️ Binance sync had issues"
 
-echo "✅ Grading complete. Service will restart on next schedule."
+# Step 2: Run integrated 6-layer grading
+echo ""
+echo "🧠 Step 2: Integrated 6-Layer Grading..."
+python3 src/layers/integrated_grader.py
+
+echo ""
+echo "✅ Pipeline complete. Sleeping until next run..."
+# Keep container alive for Railway health checks
+sleep 3600

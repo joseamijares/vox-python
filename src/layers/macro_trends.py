@@ -18,10 +18,8 @@ import numpy as np
 from typing import Dict, List
 from datetime import datetime
 
-with open(os.path.expanduser('~/dev/vox-python/.env'), 'r') as f:
-    for line in f:
-        if line.startswith('PG_PASSWORD='):
-            os.environ['PG_PASSWORD'] = line.strip().split('=', 1)[1]
+from layers.env_loader import load_env
+load_env()
 
 from sync.vox_postgres_sync import get_client
 
