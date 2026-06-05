@@ -27,7 +27,7 @@ with open('.env', 'r') as f:
             k, v = line.strip().split('=', 1)
             os.environ[k] = v
 
-from sync.vox_supabase_sync import get_client
+from sync.vox_postgres_sync import get_client
 from pricing.updater import update_all_prices
 from alerts.notifier import run_daily_alerts
 
