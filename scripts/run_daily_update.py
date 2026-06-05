@@ -20,12 +20,14 @@ import os
 
 sys.path.insert(0, 'src')
 
+# Load .env
 with open('.env', 'r') as f:
     for line in f:
-        if line.startswith('DATABASE_URL='):
-            os.environ['DATABASE_URL'] = line.strip().split('=', 1)[1]
+        if '=' in line and not line.startswith('#'):
+            k, v = line.strip().split('=', 1)
+            os.environ[k] = v
 
-from sync.vox_postgres_sync import get_client
+from sync.vox_supabase_sync import get_client
 from pricing.updater import update_all_prices
 from alerts.notifier import run_daily_alerts
 
@@ -37,10 +39,7 @@ def main():
     print()
     
     # Connect to Supabase
-    sb = get_client()  # was: create_client(
-        os.environ['DATABASE_URL'],
-        os.environ['DATABASE_URL']
-    )
+    sb = get_client()  # was: create_client(os.environ['DATABASE_URL'], os.environ['DATABASE_URL'])
     
     # Update prices
     print("📊 Updating prices...")

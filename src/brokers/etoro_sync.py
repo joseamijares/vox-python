@@ -123,17 +123,30 @@ def sync_etoro():
         pnl = pos.get("unrealizedPnL", {}).get("pnL", 0)
         initial = pos.get("initialAmountInDollars", 0)
         is_buy = pos.get("isBuy", True)
+        units = pos.get("units", 0)  # Actual share count
+        open_rate = pos.get("openRate", 0)  # Entry price per share
 
-        # Calculate shares from exposure and initial
-        if initial > 0:
-            shares = exposure / initial if initial > 0 else 0
+        # Use actual units if available, otherwise derive from exposure/openRate
+        if units and units > 0:
+            shares = abs(units)
+        elif open_rate > 0:
+            shares = exposure / open_rate
         else:
             shares = 0
+
+        # Calculate avg_cost: if we know initial investment and shares
+        if initial > 0 and shares > 0:
+            avg_cost = initial / shares
+        elif open_rate > 0:
+            avg_cost = open_rate
+        else:
+            avg_cost = 0
 
         aggregated[symbol]["shares"] += shares if is_buy else -shares
         aggregated[symbol]["value"] += exposure
         aggregated[symbol]["pnl"] += pnl
         aggregated[symbol]["initial"] += initial
+        aggregated[symbol]["avg_cost"] = avg_cost  # Store for later use
 
     # Get grades from watchlist
     try:
@@ -175,7 +188,7 @@ def sync_etoro():
         position = {
             "ticker": symbol,
             "shares": shares,
-            "avg_cost": data["initial"] / shares if shares > 0 else 0,
+            "avg_cost": data.get("avg_cost", 0),
             "live_price": live_price,
             "live_value": data["value"],
             "grade": grade,
@@ -197,7 +210,7 @@ def sync_etoro():
                 # Update with new values
                 sb.table("positions").update({
                     "shares": shares,
-                    "avg_cost": data["initial"] / shares if shares > 0 else 0,
+                    "avg_cost": data.get("avg_cost", 0),
                     "live_price": live_price,
                     "live_value": data["value"],
                     "grade": grade,

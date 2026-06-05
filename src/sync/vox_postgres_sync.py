@@ -26,14 +26,16 @@ def _get_conn_kwargs():
             "user": parsed.username,
             "password": parsed.password,
             "dbname": parsed.path.lstrip("/"),
+            "sslmode": "require",
         }
-
+    # Fallback to individual Railway env vars
     return {
-        "host": os.environ.get("PGHOST", "localhost"),
+        "host": os.environ.get("PGHOST", "postgres-flpd.railway.internal"),
         "port": int(os.environ.get("PGPORT", "5432")),
         "user": os.environ.get("PGUSER", "postgres"),
         "password": os.environ.get("PGPASSWORD", ""),
         "dbname": os.environ.get("PGDATABASE", "railway"),
+        "sslmode": "require",
     }
 
 
@@ -124,6 +126,60 @@ def get_position_by_ticker(ticker: str):
         return dict(row) if row else None
 
 
+# -- CRUD: vox_grades (full 6-layer breakdown) --------------------------------
+
+def save_vox_grade(record: dict):
+    """Save a full 6-layer VOX grade breakdown."""
+    sql = """
+    INSERT INTO vox_grades (
+        ticker, name, vox_grade, previous_grade, action, current_price,
+        stop_loss, entry_point, position_value, shares,
+        technical_score, fundamental_score, macro_score, sector_score,
+        weather_score, sentiment_score, catalysts, weather_factors, generated_at
+    ) VALUES (
+        %(ticker)s, %(name)s, %(vox_grade)s, %(previous_grade)s, %(action)s, %(current_price)s,
+        %(stop_loss)s, %(entry_point)s, %(position_value)s, %(shares)s,
+        %(technical_score)s, %(fundamental_score)s, %(macro_score)s, %(sector_score)s,
+        %(weather_score)s, %(sentiment_score)s, %(catalysts)s, %(weather_factors)s, %(generated_at)s
+    )
+    ON CONFLICT (ticker, generated_at) DO UPDATE SET
+        vox_grade = EXCLUDED.vox_grade,
+        action = EXCLUDED.action,
+        current_price = EXCLUDED.current_price,
+        stop_loss = EXCLUDED.stop_loss,
+        entry_point = EXCLUDED.entry_point,
+        position_value = EXCLUDED.position_value,
+        shares = EXCLUDED.shares,
+        technical_score = EXCLUDED.technical_score,
+        fundamental_score = EXCLUDED.fundamental_score,
+        macro_score = EXCLUDED.macro_score,
+        sector_score = EXCLUDED.sector_score,
+        weather_score = EXCLUDED.weather_score,
+        sentiment_score = EXCLUDED.sentiment_score,
+        catalysts = EXCLUDED.catalysts,
+        weather_factors = EXCLUDED.weather_factors
+    """
+    record.setdefault("generated_at", _now_iso())
+    with _get_cursor() as cur:
+        cur.execute(sql, record)
+
+
+def get_vox_grades():
+    with _get_cursor() as cur:
+        cur.execute("SELECT * FROM vox_grades ORDER BY vox_grade DESC")
+        return [dict(r) for r in cur.fetchall()]
+
+
+def get_vox_grade_by_ticker(ticker: str):
+    with _get_cursor() as cur:
+        cur.execute(
+            "SELECT * FROM vox_grades WHERE ticker = %s ORDER BY generated_at DESC LIMIT 1",
+            (ticker,)
+        )
+        row = cur.fetchone()
+        return dict(row) if row else None
+
+
 # -- CRUD: watchlist ----------------------------------------------------------
 
 def get_watchlist():
@@ -157,26 +213,25 @@ def upsert_watchlist(record: dict):
 
 def get_plays():
     with _get_cursor() as cur:
-        cur.execute("SELECT * FROM plays ORDER BY id DESC")
+        cur.execute("SELECT * FROM plays ORDER BY timestamp DESC")
         return [dict(r) for r in cur.fetchall()]
 
 
 def insert_play(record: dict):
     sql = """
-    INSERT INTO plays (ticker, action, shares, price, notional, broker, reason, grade_at_entry, council_at_entry, notes, closed, exit_price, exit_date, pnl, pnl_pct)
-    VALUES (%(ticker)s, %(action)s, %(shares)s, %(price)s, %(notional)s, %(broker)s, %(reason)s, %(grade_at_entry)s, %(council_at_entry)s, %(notes)s, %(closed)s, %(exit_price)s, %(exit_date)s, %(pnl)s, %(pnl_pct)s)
-    RETURNING id
+    INSERT INTO plays (timestamp, ticker, action, shares, price, notional, broker, reason, grade_at_entry, council_at_entry, notes, closed, exit_price, exit_date, pnl, pnl_pct)
+    VALUES (%(timestamp)s, %(ticker)s, %(action)s, %(shares)s, %(price)s, %(notional)s, %(broker)s, %(reason)s, %(grade_at_entry)s, %(council_at_entry)s, %(notes)s, %(closed)s, %(exit_price)s, %(exit_date)s, %(pnl)s, %(pnl_pct)s)
     """
+    record.setdefault("timestamp", _now_iso())
     with _get_cursor() as cur:
         cur.execute(sql, record)
-        return cur.fetchone()["id"]
 
 
 # -- CRUD: alerts -------------------------------------------------------------
 
 def get_alerts():
     with _get_cursor() as cur:
-        cur.execute("SELECT * FROM alerts ORDER BY id DESC")
+        cur.execute("SELECT * FROM alerts ORDER BY timestamp DESC")
         return [dict(r) for r in cur.fetchall()]
 
 
@@ -184,16 +239,16 @@ def get_alerts():
 
 def get_sector_momentum():
     with _get_cursor() as cur:
-        cur.execute("SELECT * FROM sector_momentum")
+        cur.execute("SELECT * FROM sector_momentum ORDER BY updated_at DESC")
         return [dict(r) for r in cur.fetchall()]
 
 
 def upsert_sector_momentum(record: dict):
     sql = """
-    INSERT INTO sector_momentum (sector, score, trend, top_tickers, updated_at)
-    VALUES (%(sector)s, %(score)s, %(trend)s, %(top_tickers)s::jsonb, %(updated_at)s)
+    INSERT INTO sector_momentum (sector, momentum_score, trend, top_tickers, updated_at)
+    VALUES (%(sector)s, %(momentum_score)s, %(trend)s, %(top_tickers)s::jsonb, %(updated_at)s)
     ON CONFLICT (sector) DO UPDATE SET
-        score = EXCLUDED.score,
+        momentum_score = EXCLUDED.momentum_score,
         trend = EXCLUDED.trend,
         top_tickers = EXCLUDED.top_tickers,
         updated_at = EXCLUDED.updated_at
@@ -208,16 +263,16 @@ def upsert_sector_momentum(record: dict):
 
 def get_weather_patterns():
     with _get_cursor() as cur:
-        cur.execute("SELECT * FROM weather_patterns")
+        cur.execute("SELECT * FROM weather_patterns ORDER BY date DESC")
         return [dict(r) for r in cur.fetchall()]
 
 
 def insert_weather_pattern(record: dict):
     sql = """
-    INSERT INTO weather_patterns (ticker, sector, pattern, confidence, expected_return, timeframe, updated_at)
-    VALUES (%(ticker)s, %(sector)s, %(pattern)s, %(confidence)s, %(expected_return)s, %(timeframe)s, %(updated_at)s)
+    INSERT INTO weather_patterns (date, regime, vix_level, spy_trend, notes, signals)
+    VALUES (%(date)s, %(regime)s, %(vix_level)s, %(spy_trend)s, %(notes)s, %(signals)s::jsonb)
     """
-    record.setdefault("updated_at", _now_iso())
+    record["signals"] = _to_jsonb(record.get("signals", []))
     with _get_cursor() as cur:
         cur.execute(sql, record)
 
@@ -226,23 +281,20 @@ def insert_weather_pattern(record: dict):
 
 def get_macro_signals():
     with _get_cursor() as cur:
-        cur.execute("SELECT * FROM macro_signals")
+        cur.execute("SELECT * FROM macro_signals ORDER BY date DESC")
         return [dict(r) for r in cur.fetchall()]
 
 
 def upsert_macro_signal(record: dict):
     sql = """
-    INSERT INTO macro_signals (signal_name, signal_type, value, direction, confidence, notes, updated_at)
-    VALUES (%(signal_name)s, %(signal_type)s, %(value)s, %(direction)s, %(confidence)s, %(notes)s, %(updated_at)s)
-    ON CONFLICT (signal_name) DO UPDATE SET
-        signal_type = EXCLUDED.signal_type,
-        value = EXCLUDED.value,
-        direction = EXCLUDED.direction,
-        confidence = EXCLUDED.confidence,
-        notes = EXCLUDED.notes,
-        updated_at = EXCLUDED.updated_at
+    INSERT INTO macro_signals (date, signal_type, strength, description, impact_sectors)
+    VALUES (%(date)s, %(signal_type)s, %(strength)s, %(description)s, %(impact_sectors)s::jsonb)
+    ON CONFLICT (date, signal_type) DO UPDATE SET
+        strength = EXCLUDED.strength,
+        description = EXCLUDED.description,
+        impact_sectors = EXCLUDED.impact_sectors
     """
-    record.setdefault("updated_at", _now_iso())
+    record["impact_sectors"] = _to_jsonb(record.get("impact_sectors", []))
     with _get_cursor() as cur:
         cur.execute(sql, record)
 
@@ -251,143 +303,83 @@ def upsert_macro_signal(record: dict):
 
 def get_technical_signals():
     with _get_cursor() as cur:
-        cur.execute("SELECT * FROM technical_signals")
+        cur.execute("SELECT * FROM technical_signals ORDER BY date DESC")
         return [dict(r) for r in cur.fetchall()]
 
 
 def upsert_technical_signal(record: dict):
     sql = """
-    INSERT INTO technical_signals (ticker, score, signals, updated_at)
-    VALUES (%(ticker)s, %(score)s, %(signals)s::jsonb, %(updated_at)s)
-    ON CONFLICT (ticker) DO UPDATE SET
-        score = EXCLUDED.score,
-        signals = EXCLUDED.signals,
-        updated_at = EXCLUDED.updated_at
+    INSERT INTO technical_signals (date, ticker, signal, timeframe, strength, notes)
+    VALUES (%(date)s, %(ticker)s, %(signal)s, %(timeframe)s, %(strength)s, %(notes)s)
+    ON CONFLICT (date, ticker, signal) DO UPDATE SET
+        timeframe = EXCLUDED.timeframe,
+        strength = EXCLUDED.strength,
+        notes = EXCLUDED.notes
     """
-    record["signals"] = _to_jsonb(record.get("signals", []))
-    record.setdefault("updated_at", _now_iso())
     with _get_cursor() as cur:
         cur.execute(sql, record)
 
 
-# -- Batch helpers ------------------------------------------------------------
-
-def sync_positions(positions_data):
-    """Batch upsert positions."""
-    count = 0
-    for p in positions_data:
-        if p.get("ticker") == "TOTAL":
-            continue
-        upsert_position({
-            "ticker": p.get("ticker", ""),
-            "shares": p.get("shares", 0) or p.get("quantity", 0),
-            "avg_cost": p.get("cost_basis", 0) or p.get("avg_cost", 0),
-            "live_price": p.get("live_price", 0),
-            "live_value": p.get("live_value", p.get("value", 0)),
-            "grade": p.get("grade", 0),
-            "council": p.get("council", ""),
-            "brokers": p.get("brokers", []),
-            "sector": p.get("sector", ""),
-        })
-        count += 1
-    return count
-
-
-def sync_watchlist(watchlist_data):
-    """Batch upsert watchlist."""
-    count = 0
-    for w in watchlist_data:
-        sources = w.get("sources", [])
-        notes = " | ".join(sources) if sources else ""
-        upsert_watchlist({
-            "ticker": w.get("ticker", ""),
-            "name": w.get("ticker", ""),
-            "sector": w.get("sector", ""),
-            "thesis": notes[:200],
-            "entry_price": w.get("buy_zone", 0),
-            "target_price": w.get("target_1", 0),
-            "stop_loss": w.get("stop_loss", 0),
-            "grade": w.get("grade", 0),
-            "council": w.get("signal", ""),
-            "status": "watching",
-            "notes": notes[:500],
-        })
-        count += 1
-    return count
-
-
-def sync_play(play_dict):
-    """Insert a single play."""
-    return insert_play({
-        "ticker": play_dict["ticker"],
-        "action": play_dict["action"],
-        "shares": play_dict["shares"],
-        "price": play_dict["price"],
-        "notional": play_dict.get("notional", play_dict["shares"] * play_dict["price"]),
-        "broker": play_dict.get("broker", ""),
-        "reason": play_dict.get("reason", ""),
-        "grade_at_entry": play_dict.get("grade_at_entry", 0),
-        "council_at_entry": play_dict.get("council_at_entry", ""),
-        "notes": play_dict.get("notes", ""),
-        "closed": play_dict.get("closed", False),
-        "exit_price": play_dict.get("exit_price"),
-        "exit_date": play_dict.get("exit_date"),
-        "pnl": play_dict.get("pnl"),
-        "pnl_pct": play_dict.get("pnl_pct"),
-    })
-
-
-def snapshot_to_history(date_str=None):
-    """Copy current positions to position_history."""
-    if not date_str:
-        date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    positions = get_positions()
-    with _get_cursor() as cur:
-        for p in positions:
-            cur.execute("""
-                INSERT INTO position_history (ticker, date, shares, price, value, grade, council)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-                ON CONFLICT (ticker, date) DO UPDATE SET
-                    shares = EXCLUDED.shares,
-                    price = EXCLUDED.price,
-                    value = EXCLUDED.value,
-                    grade = EXCLUDED.grade,
-                    council = EXCLUDED.council
-            """, (
-                p["ticker"], date_str, p.get("shares", 0), p.get("live_price", 0),
-                p.get("live_value", 0), p.get("grade", 0), p.get("council", "")
-            ))
-    return len(positions)
-
-
-# -- Back-compat: get_client --------------------------------------------------
+# -- Fake Supabase client (back-compat) ---------------------------------------
 
 class _FakeSupabase:
-    """Minimal wrapper that looks like Supabase client for back-compat."""
+    """Drop-in replacement for supabase.create_client().
+    Routes table operations to PostgreSQL functions above.
+    """
 
-    def table(self, name):
-        return _FakeTable(name)
-
-
-class _FakeTable:
-    def __init__(self, name):
-        self._name = name
+    def __init__(self):
+        self._name = None
         self._filters = []
-        self._select_cols = "*"
         self._order_col = None
         self._order_desc = False
+        self._limit = None
 
-    def select(self, cols="*"):
-        self._select_cols = cols
+    def table(self, name):
+        self._name = name
+        self._filters = []
+        self._order_col = None
+        self._order_desc = False
+        self._limit = None
+        return self
+
+    def select(self, *cols):
         return self
 
     def eq(self, col, val):
         self._filters.append(("eq", col, val))
         return self
 
+    def neq(self, col, val):
+        self._filters.append(("neq", col, val))
+        return self
+
+    def gt(self, col, val):
+        self._filters.append(("gt", col, val))
+        return self
+
+    def lt(self, col, val):
+        self._filters.append(("lt", col, val))
+        return self
+
+    def gte(self, col, val):
+        self._filters.append(("gte", col, val))
+        return self
+
+    def lte(self, col, val):
+        self._filters.append(("lte", col, val))
+        return self
+
+    def in_(self, col, vals):
+        self._filters.append(("in", col, vals))
+        return self
+
     def order(self, col, desc=False):
         self._order_col = col
         self._order_desc = desc
+        return self
+
+    def limit(self, n):
+        self._limit = n
         return self
 
     def insert(self, record):

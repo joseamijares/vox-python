@@ -2,7 +2,7 @@
 
 **Real-time portfolio tracking, grading, and alerts.**
 
-- **Dashboard:** https://web-production-236e93.up.railway.app/
+- **Dashboard:** https://web-production-9e321.up.railway.app/
 - **Repo:** https://github.com/joseamijares/vox-python
 
 ---
@@ -19,10 +19,7 @@ pip install -r requirements.txt
 
 # Set env
 cp .env.example .env
-# Edit .env with your Supabase credentials
-
-# Run dashboard
-streamlit run src/dashboard/vox_dashboard.py
+# Edit .env with your Railway Postgres credentials
 
 # Run daily update
 python scripts/run_daily_update.py
@@ -48,7 +45,8 @@ vox-python/
 │   ├── alerts/           # Notifications
 │   │   └── notifier.py   # Telegram alerts
 │   ├── sync/             # Data sync
-│   │   ├── vox_supabase_sync.py  # Supabase client
+│   │   ├── vox_postgres_sync.py  # Railway Postgres client
+│   │   ├── vox_supabase_sync.py  # Supabase client (legacy)
 │   │   ├── gbm_importer.py       # GBM JSON import
 │   │   └── validator.py          # Data validation
 │   ├── brokers/          # Broker sync scripts
@@ -56,7 +54,7 @@ vox-python/
 │   │   ├── binance_sync.py
 │   │   ├── gbm_sync.py
 │   │   └── remaining_sync.py
-│   └── dashboard/        # Streamlit UI
+│   └── dashboard/        # Streamlit UI (legacy)
 │       └── vox_dashboard.py
 ├── scripts/              # CLI runners
 │   ├── run_daily_update.py
@@ -84,6 +82,7 @@ vox-python/
 | Delisted stock detection | ✅ |
 | Garbage token filtering | ✅ |
 | Railway deployment | ✅ |
+| Railway Postgres database | ✅ |
 
 ---
 
@@ -91,8 +90,7 @@ vox-python/
 
 | Job | Schedule | Description |
 |-----|----------|-------------|
-| `vox-daily-update` | Daily 9 AM | Update prices + check alerts |
-| `vox-weekly-gbm-import` | Monday 9 AM | Import GBM JSON export |
+| `vox-daily-sync` | Daily 7:30 AM CT | Update prices + check alerts + broker sync |
 
 ---
 
@@ -105,11 +103,11 @@ Sync Scripts (src/brokers/)
     ↓
 Validator (src/sync/validator.py)
     ↓
-Supabase (Single source of truth)
+Railway Postgres (Single source of truth)
     ↓
 Grading Engine (src/grading/)
     ↓
-Dashboard (src/dashboard/)
+Dashboard (Next.js on Railway)
 ```
 
 ---
@@ -117,9 +115,30 @@ Dashboard (src/dashboard/)
 ## Environment Variables
 
 ```bash
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_KEY=your-service-role-key
-TELEGRAM_BOT_TOKEN=your-bot-token
+# Railway Postgres
+PGHOST=postgres-flpd.railway.internal
+PGPORT=5432
+PGDATABASE=railway
+PGUSER=railway
+PGPASSWORD=your-password
+
+# eToro API
+ETORO_USERNAME=your-username
+ETORO_PASSWORD=your-password
+
+# Other brokers (JSON fallback)
+GBM_MAIN_JSON={...}
+GBM_USA_JSON={...}
+BINANCE_JSON={...}
+IBKR_JSON={...}
+SCHWAB_JSON={...}
+
+# APIs
+POLYGON_API_KEY=your-key
+FMP_API_KEY=your-key
+
+# Telegram
+TELEGRAM_BOT_TOKEN=your-token
 TELEGRAM_CHAT_ID=your-chat-id
 ```
 
@@ -148,7 +167,11 @@ python -m pytest tests/
 
 ## Portfolio Stats
 
-- **Positions:** 55
-- **Watchlist:** 147 stocks
-- **Total Value:** ~$200K
+- **Positions:** 70
+- **Watchlist:** 277 stocks
+- **Total Value:** ~$185K
 - **Brokers:** eToro, GBM, Binance, IBKR, Schwab, Bitso
+
+---
+
+*Last updated: 2026-06-05*
